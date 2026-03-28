@@ -1,13 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: "https://job-tracker-production-585f.up.railway.app",
 });
-// later I will change api like this below:
-
-// const api = axios.create({
-//   baseURL: process.env.REACT_APP_API_URL,
-// });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
