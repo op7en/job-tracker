@@ -11,7 +11,7 @@ const db_1 = __importDefault(require("./db"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: ["https://job-tracker-xi-lake.vercel.app", "http://localhost:5173"],
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
 }));
 app.use("/auth", auth_1.default);
 app.use("/applications", applications_1.default);
