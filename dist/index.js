@@ -4,16 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const applications_1 = __importDefault(require("./routes/applications"));
 const cors_1 = __importDefault(require("cors"));
 const db_1 = __importDefault(require("./db"));
-dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: ["https://job-tracker-xi-lake.vercel.app", "http://localhost:5173"],
 }));
 app.use("/auth", auth_1.default);
 app.use("/applications", applications_1.default);
