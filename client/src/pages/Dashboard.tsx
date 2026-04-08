@@ -84,8 +84,8 @@ const Dashboard = () => {
                 <th className="p-4 text-left">Company</th>
                 <th className="p-4 text-left">Position</th>
                 <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Date Applied</th>
                 <th className="p-4 text-left">Notes</th>
+                <th className="p-4 text-left">Date Applied</th>
                 <th className="p-4 text-left">Update</th>
                 <th className="p-4 text-left">Actions</th>
               </tr>
