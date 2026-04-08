@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    if (!email || !password) {
+      toast.warning("Fill in all fields");
+      return;
+    }
+    setLoading(true);
     try {
       await api.post("/auth/register", { email, password });
+      toast.success("Account created! Sign in now.");
       navigate("/");
-    } catch (err) {
-      alert(`Register failed: ${err}`);
+    } catch {
+      toast.error("Registration failed. Email may already be taken.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,24 +35,34 @@ const Register = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none"
+          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none"
+          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
         />
         <button
           onClick={handleSubmit}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded mb-3"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded mb-3 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2"
         >
-          Sign Up
+          {loading ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Creating account...
+            </>
+          ) : (
+            "Sign Up"
+          )}
         </button>
         <button
           onClick={() => navigate("/")}
-          className="w-full text-gray-400 hover:text-white text-sm"
+          className="w-full text-gray-400 hover:text-white text-sm transition-colors"
         >
           Have account? Login!
         </button>
