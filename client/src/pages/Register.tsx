@@ -2,6 +2,26 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { toast } from "react-toastify";
+import ThemeToggle from "../components/ThemeToggle";
+
+const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    {...props}
+    style={{
+      width: "100%",
+      background: "var(--bg-input)",
+      border: "1px solid var(--border)",
+      borderRadius: "7px",
+      padding: "9px 12px",
+      color: "var(--text-primary)",
+      fontSize: "14px",
+      outline: "none",
+      transition: "border-color 0.15s",
+    }}
+    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
+    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+  />
+);
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -10,63 +30,163 @@ const Register = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!email || !password) {
-      toast.warning("Fill in all fields");
-      return;
-    }
+    if (!email || !password) return toast.warning("Fill in all fields");
     setLoading(true);
     try {
       await api.post("/auth/register", { email, password });
-      toast.success("Account created! Sign in now.");
+      toast.success("Account created — sign in now");
       navigate("/");
     } catch {
-      toast.error("Registration failed. Email may already be taken.");
+      toast.error("Registration failed. Email may be taken.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md">
-        <h2 className="text-white text-2xl font-bold mb-6">Sign Up</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-          className="w-full bg-gray-700 text-white p-3 rounded mb-4 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
-        />
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white p-3 rounded mb-3 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Creating account...
-            </>
-          ) : (
-            "Sign Up"
-          )}
-        </button>
-        <button
-          onClick={() => navigate("/")}
-          className="w-full text-gray-400 hover:text-white text-sm transition-colors"
-        >
-          Have account? Login!
-        </button>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg-app)",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div
+        style={{
+          padding: "16px 24px",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <ThemeToggle />
       </div>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "0 16px",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: "360px" }}>
+          <div style={{ marginBottom: "32px" }}>
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                background: "var(--accent)",
+                borderRadius: "8px",
+                marginBottom: "24px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+              </svg>
+            </div>
+            <h1
+              style={{
+                fontSize: "18px",
+                fontWeight: 500,
+                color: "var(--text-primary)",
+                marginBottom: "4px",
+              }}
+            >
+              Create your account
+            </h1>
+            <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+              Start tracking your job applications
+            </p>
+          </div>
+
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            <Input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            />
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              style={{
+                width: "100%",
+                background: "var(--accent)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "7px",
+                padding: "9px 12px",
+                fontSize: "14px",
+                fontWeight: 500,
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                transition: "opacity 0.15s, background 0.15s",
+                marginTop: "4px",
+              }}
+              onMouseEnter={(e) => {
+                if (!loading)
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    "var(--accent-hover)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "var(--accent)";
+              }}
+            >
+              {loading && (
+                <span
+                  style={{
+                    width: "13px",
+                    height: "13px",
+                    border: "2px solid rgba(255,255,255,0.3)",
+                    borderTopColor: "#fff",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    animation: "spin 0.6s linear infinite",
+                  }}
+                />
+              )}
+              {loading ? "Creating account..." : "Create account"}
+            </button>
+          </div>
+
+          <p
+            style={{
+              marginTop: "20px",
+              textAlign: "center",
+              fontSize: "13px",
+              color: "var(--text-secondary)",
+            }}
+          >
+            Already have an account?{" "}
+            <span
+              onClick={() => navigate("/")}
+              style={{ color: "var(--accent)", cursor: "pointer" }}
+            >
+              Sign in
+            </span>
+          </p>
+        </div>
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

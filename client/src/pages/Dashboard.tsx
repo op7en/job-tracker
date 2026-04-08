@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 import { toast } from "react-toastify";
+import ThemeToggle from "../components/ThemeToggle";
 
 interface Application {
   id: number;
@@ -11,22 +12,121 @@ interface Application {
   notes: string;
 }
 
-const statusColors: Record<string, string> = {
-  applied: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-  interview: "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20",
-  rejected: "bg-red-500/10 text-red-400 border border-red-500/20",
-  offer: "bg-green-500/10 text-green-400 border border-green-500/20",
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  applied: {
+    label: "Applied",
+    color: "var(--accent)",
+    bg: "var(--accent-muted)",
+  },
+  interview: {
+    label: "Interview",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.1)",
+  },
+  rejected: {
+    label: "Rejected",
+    color: "var(--danger)",
+    bg: "var(--danger-muted)",
+  },
+  offer: {
+    label: "Offer",
+    color: "var(--success)",
+    bg: "var(--success-muted)",
+  },
 };
 
+const Spinner = ({ size = 13 }: { size?: number }) => (
+  <>
+    <span
+      style={{
+        width: size,
+        height: size,
+        border: "1.5px solid rgba(255,255,255,0.25)",
+        borderTopColor: "#fff",
+        borderRadius: "50%",
+        display: "inline-block",
+        animation: "spin 0.6s linear infinite",
+        flexShrink: 0,
+      }}
+    />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+  </>
+);
+
 const SkeletonRow = () => (
-  <tr className="border-t border-gray-700/50 animate-pulse">
-    {[...Array(7)].map((_, i) => (
-      <td key={i} className="p-4">
-        <div className="h-4 bg-gray-700 rounded w-3/4" />
+  <tr style={{ borderTop: "1px solid var(--border)" }}>
+    {[140, 120, 80, 160, 90, 100, 70].map((w, i) => (
+      <td key={i} style={{ padding: "12px 16px" }}>
+        <div
+          style={{
+            height: "12px",
+            width: w,
+            borderRadius: "4px",
+            background: "var(--bg-elevated)",
+            animation: "pulse 1.5s ease-in-out infinite",
+          }}
+        />
       </td>
     ))}
+    <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
   </tr>
 );
+
+const SkeletonCard = () => (
+  <div
+    style={{
+      background: "var(--bg-surface)",
+      border: "1px solid var(--border)",
+      borderRadius: "12px",
+      padding: "16px",
+      animation: "pulse 1.5s ease-in-out infinite",
+    }}
+  >
+    {[
+      ["60%", "12px"],
+      ["40%", "10px"],
+      ["30%", "10px"],
+    ].map(([w, h], i) => (
+      <div
+        key={i}
+        style={{
+          height: h,
+          width: w,
+          borderRadius: "4px",
+          background: "var(--bg-elevated)",
+          marginBottom: i < 2 ? "10px" : 0,
+        }}
+      />
+    ))}
+    <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+  </div>
+);
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const cfg = STATUS_CONFIG[status] ?? {
+    label: status,
+    color: "var(--text-secondary)",
+    bg: "var(--bg-elevated)",
+  };
+  return (
+    <span
+      style={{
+        fontSize: "11px",
+        fontWeight: 500,
+        padding: "3px 8px",
+        borderRadius: "20px",
+        color: cfg.color,
+        background: cfg.bg,
+        letterSpacing: "0.01em",
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
+};
 
 const Dashboard = () => {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -36,6 +136,14 @@ const Dashboard = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     api
@@ -46,10 +154,8 @@ const Dashboard = () => {
   }, []);
 
   const handleAdd = async () => {
-    if (!company.trim() || !position.trim()) {
-      toast.warning("Company and position are required");
-      return;
-    }
+    if (!company.trim() || !position.trim())
+      return toast.warning("Company and position are required");
     setIsAdding(true);
     try {
       await api.post("/applications", { company, position, notes });
@@ -58,7 +164,7 @@ const Dashboard = () => {
       setCompany("");
       setPosition("");
       setNotes("");
-      toast.success(`Added application to ${company}`);
+      toast.success(`Added — ${company}`);
     } catch {
       toast.error("Failed to add application");
     } finally {
@@ -70,8 +176,8 @@ const Dashboard = () => {
     setDeletingId(id);
     try {
       await api.delete(`/applications/${id}`);
-      setApplications((prev) => prev.filter((app) => app.id !== id));
-      toast.success("Application removed");
+      setApplications((prev) => prev.filter((a) => a.id !== id));
+      toast.success("Removed");
     } catch {
       toast.error("Failed to delete");
     } finally {
@@ -83,205 +189,598 @@ const Dashboard = () => {
     try {
       await api.patch(`/applications/${id}/status`, { status });
       setApplications((prev) =>
-        prev.map((app) => (app.id === id ? { ...app, status } : app)),
+        prev.map((a) => (a.id === id ? { ...a, status } : a)),
       );
-      toast.success(`Status updated to "${status}"`);
+      toast.success(`Marked as ${status}`);
     } catch {
       toast.error("Failed to update status");
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">
-          My Applications
-        </h1>
+  const inputStyle: React.CSSProperties = {
+    background: "var(--bg-input)",
+    border: "1px solid var(--border)",
+    borderRadius: "7px",
+    padding: "8px 12px",
+    color: "var(--text-primary)",
+    fontSize: "13px",
+    outline: "none",
+    transition: "border-color 0.15s",
+    width: "100%",
+  };
 
-        {/* Форма добавления */}
-        <div className="bg-gray-800 p-4 md:p-6 rounded-lg mb-6 md:mb-8 flex flex-col md:flex-row gap-3 md:gap-4">
-          <input
-            placeholder="Company"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            className="bg-gray-700 text-white p-3 rounded outline-none w-full md:flex-1 focus:ring-2 focus:ring-blue-500/50 transition-all"
-          />
-          <input
-            placeholder="Position"
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            className="bg-gray-700 text-white p-3 rounded outline-none w-full md:flex-1 focus:ring-2 focus:ring-blue-500/50 transition-all"
-          />
-          <input
-            placeholder="Notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-            className="bg-gray-700 text-white p-3 rounded outline-none w-full md:flex-1 focus:ring-2 focus:ring-blue-500/50 transition-all"
-          />
+  const thStyle: React.CSSProperties = {
+    padding: "10px 16px",
+    textAlign: "left",
+    fontSize: "11px",
+    fontWeight: 500,
+    color: "var(--text-secondary)",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    borderBottom: "1px solid var(--border)",
+    whiteSpace: "nowrap",
+  };
+
+  // Stats for mobile header
+  const stats = {
+    total: applications.length,
+    interview: applications.filter((a) => a.status === "interview").length,
+    offer: applications.filter((a) => a.status === "offer").length,
+    rejected: applications.filter((a) => a.status === "rejected").length,
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--bg-app)" }}>
+      {/* ── Header ── */}
+      <div
+        style={{
+          borderBottom: "1px solid var(--border)",
+          padding: "0 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: "52px",
+          position: "sticky",
+          top: 0,
+          background: "var(--bg-app)",
+          backdropFilter: "blur(8px)",
+          zIndex: 10,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div
+            style={{
+              width: "22px",
+              height: "22px",
+              background: "var(--accent)",
+              borderRadius: "5px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+            </svg>
+          </div>
+          <span
+            style={{
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "var(--text-primary)",
+            }}
+          >
+            JobTracker
+          </span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+            {applications.length} application
+            {applications.length !== 1 ? "s" : ""}
+          </span>
+          <ThemeToggle />
+        </div>
+      </div>
+
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: isMobile ? "16px" : "28px 24px",
+        }}
+      >
+        {/* ── Mobile stats strip ── */}
+        {isMobile && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "8px",
+              marginBottom: "16px",
+            }}
+          >
+            {[
+              {
+                label: "Total",
+                value: stats.total,
+                color: "var(--text-primary)",
+              },
+              { label: "Interview", value: stats.interview, color: "#f59e0b" },
+              { label: "Offers", value: stats.offer, color: "var(--success)" },
+              {
+                label: "Rejected",
+                value: stats.rejected,
+                color: "var(--danger)",
+              },
+            ].map(({ label, value, color }) => (
+              <div
+                key={label}
+                style={{
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "10px",
+                  padding: "10px 8px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "18px", fontWeight: 600, color }}>
+                  {value}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "var(--text-secondary)",
+                    marginTop: "2px",
+                  }}
+                >
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Add form ── */}
+        <div
+          style={{
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "10px",
+            padding: "16px",
+            marginBottom: "20px",
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+          {[
+            { placeholder: "Company", value: company, setter: setCompany },
+            { placeholder: "Position", value: position, setter: setPosition },
+            { placeholder: "Notes (optional)", value: notes, setter: setNotes },
+          ].map(({ placeholder, value, setter }) => (
+            <input
+              key={placeholder}
+              placeholder={placeholder}
+              value={value}
+              onChange={(e) => setter(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              style={{ ...inputStyle, flex: "1 1 140px" }}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border-focus)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border)")
+              }
+            />
+          ))}
           <button
             onClick={handleAdd}
             disabled={isAdding}
-            className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded font-semibold w-full md:w-auto transition-all duration-150 active:scale-95 flex items-center justify-center gap-2"
+            style={{
+              background: "var(--accent)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "7px",
+              padding: "8px 16px",
+              fontSize: "13px",
+              fontWeight: 500,
+              cursor: isAdding ? "not-allowed" : "pointer",
+              opacity: isAdding ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              transition: "background 0.15s, opacity 0.15s",
+              whiteSpace: "nowrap",
+              width: isMobile ? "100%" : "auto",
+              justifyContent: "center",
+            }}
+            onMouseEnter={(e) => {
+              if (!isAdding)
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "var(--accent-hover)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background =
+                "var(--accent)";
+            }}
           >
             {isAdding ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Adding...
-              </>
+              <Spinner />
             ) : (
-              "Add"
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
             )}
+            {isAdding ? "Adding..." : "Add application"}
           </button>
         </div>
 
-        {/* Десктоп: таблица */}
-        <div className="hidden md:block">
-          <table className="w-full bg-gray-800 rounded-lg overflow-hidden">
-            <thead className="bg-gray-700/80">
-              <tr>
-                {[
-                  "Company",
-                  "Position",
-                  "Status",
-                  "Notes",
-                  "Date Applied",
-                  "Update",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="p-4 text-left text-sm font-medium text-gray-300"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {initialLoading ? (
-                [...Array(3)].map((_, i) => <SkeletonRow key={i} />)
-              ) : applications.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-gray-500">
-                    No applications yet. Add your first one above.
-                  </td>
+        {/* ── DESKTOP: Table ── */}
+        {!isMobile && (
+          <div
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "10px",
+              overflow: "hidden",
+            }}
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "var(--bg-elevated)" }}>
+                  {[
+                    "Company",
+                    "Position",
+                    "Status",
+                    "Notes",
+                    "Applied",
+                    "Update",
+                    "",
+                  ].map((h, i) => (
+                    <th key={i} style={thStyle}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                applications.map((app) => (
-                  <tr
-                    key={app.id}
-                    className="border-t border-gray-700/50 hover:bg-gray-700/40 transition-colors duration-100"
-                  >
-                    <td className="p-4 font-medium">{app.company}</td>
-                    <td className="p-4 text-gray-300">{app.position}</td>
-                    <td className="p-4">
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[app.status] ?? "bg-gray-700 text-gray-300"}`}
-                      >
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-gray-400 text-sm">{app.notes}</td>
-                    <td className="p-4 text-gray-400 text-sm">
-                      {app.date_applied.slice(0, 10)}
-                    </td>
-                    <td className="p-4">
-                      <select
-                        value={app.status}
-                        onChange={(e) => handleStatus(app.id, e.target.value)}
-                        className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded text-sm transition-colors cursor-pointer"
-                      >
-                        <option value="applied">Applied</option>
-                        <option value="interview">Interview</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="offer">Offer</option>
-                      </select>
-                    </td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => handleDelete(app.id)}
-                        disabled={deletingId === app.id}
-                        className="bg-red-600/80 hover:bg-red-500 disabled:opacity-50 px-4 py-2 rounded text-sm transition-all duration-150 active:scale-95 flex items-center gap-2"
-                      >
-                        {deletingId === app.id ? (
-                          <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                          "Delete"
-                        )}
-                      </button>
+              </thead>
+              <tbody>
+                {initialLoading ? (
+                  [...Array(4)].map((_, i) => <SkeletonRow key={i} />)
+                ) : applications.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      style={{
+                        padding: "56px",
+                        textAlign: "center",
+                        color: "var(--text-secondary)",
+                        fontSize: "14px",
+                      }}
+                    >
+                      No applications yet — add one above
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  applications.map((app) => (
+                    <tr
+                      key={app.id}
+                      onMouseEnter={() => setHoveredRow(app.id)}
+                      onMouseLeave={() => setHoveredRow(null)}
+                      style={{
+                        borderTop: "1px solid var(--border)",
+                        background:
+                          hoveredRow === app.id
+                            ? "var(--bg-hover)"
+                            : "transparent",
+                        transition: "background 0.1s",
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "11px 16px",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          color: "var(--text-primary)",
+                        }}
+                      >
+                        {app.company}
+                      </td>
+                      <td
+                        style={{
+                          padding: "11px 16px",
+                          fontSize: "13px",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {app.position}
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <StatusBadge status={app.status} />
+                      </td>
+                      <td
+                        style={{
+                          padding: "11px 16px",
+                          fontSize: "13px",
+                          color: "var(--text-secondary)",
+                          maxWidth: "180px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {app.notes || "—"}
+                      </td>
+                      <td
+                        style={{
+                          padding: "11px 16px",
+                          fontSize: "12px",
+                          color: "var(--text-secondary)",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {app.date_applied.slice(0, 10)}
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <select
+                          value={app.status}
+                          onChange={(e) => handleStatus(app.id, e.target.value)}
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "6px",
+                            padding: "5px 8px",
+                            color: "var(--text-primary)",
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            outline: "none",
+                          }}
+                        >
+                          <option value="applied">Applied</option>
+                          <option value="interview">Interview</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="offer">Offer</option>
+                        </select>
+                      </td>
+                      <td style={{ padding: "11px 16px" }}>
+                        <button
+                          onClick={() => handleDelete(app.id)}
+                          disabled={deletingId === app.id}
+                          style={{
+                            background: "transparent",
+                            border: "1px solid var(--border)",
+                            borderRadius: "6px",
+                            padding: "5px 10px",
+                            color: "var(--text-secondary)",
+                            fontSize: "12px",
+                            cursor:
+                              deletingId === app.id ? "not-allowed" : "pointer",
+                            opacity: deletingId === app.id ? 0.5 : 1,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            transition: "all 0.15s",
+                          }}
+                          onMouseEnter={(e) => {
+                            const el = e.currentTarget as HTMLButtonElement;
+                            el.style.borderColor = "var(--danger)";
+                            el.style.color = "var(--danger)";
+                            el.style.background = "var(--danger-muted)";
+                          }}
+                          onMouseLeave={(e) => {
+                            const el = e.currentTarget as HTMLButtonElement;
+                            el.style.borderColor = "var(--border)";
+                            el.style.color = "var(--text-secondary)";
+                            el.style.background = "transparent";
+                          }}
+                        >
+                          {deletingId === app.id ? (
+                            <Spinner size={11} />
+                          ) : (
+                            <svg
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6l-1 14H6L5 6" />
+                              <path d="M10 11v6M14 11v6" />
+                            </svg>
+                          )}
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {/* Мобайл: карточки */}
-        <div className="flex flex-col gap-4 md:hidden">
-          {initialLoading
-            ? [...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-gray-800 rounded-lg p-4 animate-pulse"
-                >
-                  <div className="h-5 bg-gray-700 rounded w-1/2 mb-2" />
-                  <div className="h-4 bg-gray-700 rounded w-1/3" />
-                </div>
-              ))
-            : applications.map((app) => (
+        {/* ── MOBILE: Cards ── */}
+        {isMobile && (
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+          >
+            {initialLoading ? (
+              [...Array(3)].map((_, i) => <SkeletonCard key={i} />)
+            ) : applications.length === 0 ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "48px 16px",
+                  color: "var(--text-secondary)",
+                  fontSize: "14px",
+                }}
+              >
+                No applications yet — add one above
+              </div>
+            ) : (
+              applications.map((app) => (
                 <div
                   key={app.id}
-                  className="bg-gray-800 hover:bg-gray-750 rounded-lg p-4 flex flex-col gap-3 transition-colors duration-150 border border-transparent hover:border-gray-700"
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "12px",
+                    padding: "14px 16px",
+                    transition: "border-color 0.15s",
+                  }}
+                  onTouchStart={(e) =>
+                    (e.currentTarget.style.borderColor = "var(--border-focus)")
+                  }
+                  onTouchEnd={(e) =>
+                    (e.currentTarget.style.borderColor = "var(--border)")
+                  }
                 >
-                  <div className="flex justify-between items-start">
+                  {/* Card top row */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: "8px",
+                    }}
+                  >
                     <div>
-                      <p className="font-bold text-lg">{app.company}</p>
-                      <p className="text-gray-400 text-sm">{app.position}</p>
-                      <span
-                        className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[app.status] ?? "bg-gray-700 text-gray-300"}`}
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          marginBottom: "2px",
+                        }}
                       >
-                        {app.status}
-                      </span>
+                        {app.company}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {app.position}
+                      </div>
                     </div>
-                    <span className="text-xs bg-gray-700 px-2 py-1 rounded">
-                      {app.date_applied.slice(0, 10)}
-                    </span>
+                    <StatusBadge status={app.status} />
                   </div>
 
+                  {/* Notes */}
                   {app.notes && (
-                    <p className="text-gray-400 text-sm">{app.notes}</p>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "var(--text-secondary)",
+                        marginBottom: "10px",
+                        lineHeight: "1.4",
+                        padding: "7px 10px",
+                        background: "var(--bg-elevated)",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      {app.notes}
+                    </div>
                   )}
 
-                  <div className="flex gap-3 items-center">
+                  {/* Date + controls row */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--text-secondary)",
+                        background: "var(--bg-elevated)",
+                        padding: "4px 8px",
+                        borderRadius: "5px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {app.date_applied.slice(0, 10)}
+                    </span>
+
                     <select
                       value={app.status}
                       onChange={(e) => handleStatus(app.id, e.target.value)}
-                      className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded flex-1 transition-colors"
+                      style={{
+                        flex: 1,
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "6px",
+                        padding: "5px 8px",
+                        color: "var(--text-primary)",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        outline: "none",
+                        minWidth: 0,
+                      }}
                     >
                       <option value="applied">Applied</option>
                       <option value="interview">Interview</option>
                       <option value="rejected">Rejected</option>
                       <option value="offer">Offer</option>
                     </select>
+
                     <button
                       onClick={() => handleDelete(app.id)}
                       disabled={deletingId === app.id}
-                      className="bg-red-600/80 hover:bg-red-500 disabled:opacity-50 px-4 py-2 rounded text-sm transition-all active:scale-95 flex items-center gap-2"
+                      style={{
+                        background: "var(--danger-muted)",
+                        border: "1px solid transparent",
+                        borderRadius: "6px",
+                        padding: "5px 10px",
+                        color: "var(--danger)",
+                        fontSize: "12px",
+                        cursor:
+                          deletingId === app.id ? "not-allowed" : "pointer",
+                        opacity: deletingId === app.id ? 0.5 : 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                      }}
                     >
                       {deletingId === app.id ? (
-                        <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <Spinner size={11} />
                       ) : (
-                        "Delete"
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6M14 11v6" />
+                        </svg>
                       )}
+                      Delete
                     </button>
                   </div>
                 </div>
-              ))}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
