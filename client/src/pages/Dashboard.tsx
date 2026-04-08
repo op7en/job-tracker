@@ -85,6 +85,7 @@ const Dashboard = () => {
                 <th className="p-4 text-left">Position</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Date Applied</th>
+                <th className="p-4 text-left">Notes</th>
                 <th className="p-4 text-left">Update</th>
                 <th className="p-4 text-left">Actions</th>
               </tr>
@@ -95,6 +96,7 @@ const Dashboard = () => {
                   <td className="p-4">{app.company}</td>
                   <td className="p-4">{app.position}</td>
                   <td className="p-4">{app.status}</td>
+                  <td className="p-4">{app.notes}</td>
                   <td className="p-4">{app.date_applied.slice(0, 10)}</td>
                   <td className="p-4">
                     <select
@@ -133,6 +135,7 @@ const Dashboard = () => {
                 <div>
                   <p className="font-bold text-lg">{app.company}</p>
                   <p className="text-gray-400 text-sm">{app.position}</p>
+                  <p className="text-gray-400 text-sm">{app.status}</p>
                 </div>
                 <span className="text-xs bg-gray-700 px-2 py-1 rounded">
                   {app.date_applied.slice(0, 10)}
