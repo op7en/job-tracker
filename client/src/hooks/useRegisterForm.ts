@@ -1,0 +1,81 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../api/axios";
+
+interface UseRegisterFormReturn {
+  email: string;
+  setEmail: (value: string) => void;
+  password: string;
+  setPassword: (value: string) => void;
+  agreed: boolean;
+  setAgreed: (value: boolean) => void;
+  loading: boolean;
+  handleSubmit: () => Promise<void>;
+  validateForm: () => boolean;
+}
+
+export const useRegisterForm = (): UseRegisterFormReturn => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const validateForm = (): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail || !password) {
+      toast.warning("Fill in all fields");
+      return false;
+    }
+
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.warning("Please enter a valid email address");
+      return false;
+    }
+
+    if (password.length < 6) {
+      toast.warning("Password must be at least 6 characters");
+      return false;
+    }
+
+    if (!agreed) {
+      toast.warning("You must agree to the privacy policy");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      await api.post("/auth/register", {
+        email: email.trim(),
+        password,
+      });
+      toast.success("Account created — sign in now");
+      navigate("/");
+    } catch {
+      toast.error("Registration failed. Email may be taken.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    agreed,
+    setAgreed,
+    loading,
+    handleSubmit,
+    validateForm,
+  };
+};

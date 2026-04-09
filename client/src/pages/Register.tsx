@@ -1,45 +1,31 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios";
-import { toast } from "react-toastify";
 import ThemeToggle from "../components/ThemeToggle";
+import { Input } from "../components/ui/Input";
+import { Button } from "../components/ui/Button";
+import { PrivacyConsent } from "../components/PrivacyConsent";
+import { PrivacyModal } from "../components/PrivacyModal";
+import { useRegisterForm } from "../hooks/useRegisterForm";
 
-const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    style={{
-      width: "100%",
-      background: "var(--bg-input)",
-      border: "1px solid var(--border)",
-      borderRadius: "7px",
-      padding: "9px 12px",
-      color: "var(--text-primary)",
-      fontSize: "14px",
-      outline: "none",
-      transition: "border-color 0.15s",
-    }}
-    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--border-focus)")}
-    onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
-  />
-);
-
-const Register = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+const Register: React.FC = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!email || !password) return toast.warning("Fill in all fields");
-    setLoading(true);
-    try {
-      await api.post("/auth/register", { email, password });
-      toast.success("Account created — sign in now");
-      navigate("/");
-    } catch {
-      toast.error("Registration failed. Email may be taken.");
-    } finally {
-      setLoading(false);
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    agreed,
+    setAgreed,
+    loading,
+    handleSubmit,
+  } = useRegisterForm();
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !loading) {
+      e.preventDefault();
+      handleSubmit();
     }
   };
 
@@ -52,6 +38,7 @@ const Register = () => {
         flexDirection: "column",
       }}
     >
+      {/* Header */}
       <div
         style={{
           padding: "16px 24px",
@@ -61,6 +48,8 @@ const Register = () => {
       >
         <ThemeToggle />
       </div>
+
+      {/* Main content */}
       <div
         style={{
           flex: 1,
@@ -71,6 +60,7 @@ const Register = () => {
         }}
       >
         <div style={{ width: "100%", maxWidth: "360px" }}>
+          {/* Logo & Title */}
           <div style={{ marginBottom: "32px" }}>
             <div
               style={{
@@ -103,6 +93,7 @@ const Register = () => {
             </p>
           </div>
 
+          {/* Form */}
           <div
             style={{ display: "flex", flexDirection: "column", gap: "10px" }}
           >
@@ -111,63 +102,34 @@ const Register = () => {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              onKeyDown={handleKeyDown}
             />
+
             <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              onKeyDown={handleKeyDown}
             />
-            <button
+
+            <PrivacyConsent
+              checked={agreed}
+              onChange={setAgreed}
+              onViewPolicy={() => setIsModalOpen(true)}
+            />
+
+            <Button
               onClick={handleSubmit}
-              disabled={loading}
-              style={{
-                width: "100%",
-                background: "var(--accent)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "7px",
-                padding: "9px 12px",
-                fontSize: "14px",
-                fontWeight: 500,
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                transition: "opacity 0.15s, background 0.15s",
-                marginTop: "4px",
-              }}
-              onMouseEnter={(e) => {
-                if (!loading)
-                  (e.currentTarget as HTMLButtonElement).style.background =
-                    "var(--accent-hover)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background =
-                  "var(--accent)";
-              }}
+              loading={loading}
+              loadingText="Creating account..."
+              style={{ marginTop: "4px" }}
             >
-              {loading && (
-                <span
-                  style={{
-                    width: "13px",
-                    height: "13px",
-                    border: "2px solid rgba(255,255,255,0.3)",
-                    borderTopColor: "#fff",
-                    borderRadius: "50%",
-                    display: "inline-block",
-                    animation: "spin 0.6s linear infinite",
-                  }}
-                />
-              )}
-              {loading ? "Creating account..." : "Create account"}
-            </button>
+              Create account
+            </Button>
           </div>
 
+          {/* Footer link */}
           <p
             style={{
               marginTop: "20px",
@@ -186,6 +148,14 @@ const Register = () => {
           </p>
         </div>
       </div>
+
+      {/* Modals */}
+      <PrivacyModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAccept={() => setAgreed(true)}
+      />
+
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

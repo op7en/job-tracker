@@ -1,3 +1,30 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: -apple-system, "SF Pro Display", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 :root[data-theme="dark"] {
   --bg-app: #0a0a0a;
   --bg-surface: #111111;
@@ -20,6 +47,11 @@
   --warning-muted: rgba(255, 160, 0, 0.1);
   --warning: #ffa500;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border);
+
+  /* Переменные для модальных окон */
+  --bg-modal: #1a1a1a;
+  --bg-modal-elevated: #252525;
+  --border-modal: rgba(255, 255, 255, 0.1);
 }
 
 :root[data-theme="light"] {
@@ -44,16 +76,9 @@
   --warning-muted: rgba(180, 110, 0, 0.08);
   --warning: #b46e00;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border);
-}
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  background: var(--bg-app);
-  color: var(--text-primary);
-  font-family: -apple-system, "SF Pro Display", "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
+  /* Переменные для модальных окон */
+  --bg-modal: #ffffff;
+  --bg-modal-elevated: #fafafa;
+  --border-modal: rgba(0, 0, 0, 0.12);
 }
