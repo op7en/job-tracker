@@ -2,44 +2,69 @@
 
 A fullstack web application for tracking job applications during your job search.
 
+🔗 **[Live Demo](https://job-tracker-xi-lake.vercel.app)**
+
 ## Features
-- User authentication (register/login)
+
+- JWT authentication (register / login / logout)
 - Add, update and delete job applications
-- Track application status (Applied, Interview, Rejected, Offer)
-- Persistent data storage
+- Track status: Applied → Interview → Offer / Rejected
+- Dark and light theme with persistence
+- 3 languages: English, Russian, Italian
+- Responsive — table on desktop, cards on mobile
+- Skeleton loading states, toast notifications
+
+> Italian was added as a personal tribute to my aunt who has lived in Italy since 2000 and helped fund this project's hosting.
 
 ## Tech Stack
-**Frontend:** React, TypeScript, Tailwind CSS, Axios, React Router  
-**Backend:** Node.js, Express, TypeScript, PostgreSQL, JWT, bcrypt  
-**Deployed:** Vercel (frontend) + Railway (backend + database)
 
-## Live Demo
-[job-tracker-xi-lake.vercel.app](https://job-tracker-xi-lake.vercel.app)
+| Layer | Technologies |
+|-------|-------------|
+| Frontend | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
+| Backend | Node.js, Express, TypeScript, PostgreSQL, JWT, bcrypt |
+| Deploy | Vercel (frontend) · Railway (backend + database) |
+
+## Project Structure
+
+job-tracker/
+├── client/                 # Frontend (React + TypeScript)
+│   └── src/
+│       ├── api/            # Axios instance
+│       ├── components/
+│       │   └── dashboard/  # DesktopTable, MobileCards, StatsStrip, AddApplicationForm
+│       ├── context/        # ThemeContext
+│       ├── hooks/          # useApplications
+│       ├── i18n/           # Translations (en, ru, it)
+│       └── pages/          # Login, Register, Dashboard
+└── src/                    # Backend (Express + TypeScript)
+├── routes/             # auth, applications
+├── middleware/         # JWT auth
+└── index.ts
+
 
 ## Getting Started
 
-### Backend
+**Backend**
 ```bash
 cd job-tracker
 npm install
-npm run build
-node dist/index.js
+npm run dev
 ```
 
-### Frontend
+**Frontend**
 ```bash
 cd client
 npm install
 npm run dev
 ```
 
-## Environment Variables
-```
+**Environment variables**
+
 PORT=3000
 JWT_SECRET=your_secret
 DATABASE_URL=your_postgresql_url
-```
 
 
-## Документация
+---
+
 [Читать на русском](README.ru.md)
