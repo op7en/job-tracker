@@ -137,14 +137,17 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                     padding: "11px 16px",
                     fontSize: "13px",
                     color: "var(--text-secondary)",
-                    maxWidth: "180px",
+                    maxWidth: "220px",
                   }}
                 >
                   <div
                     style={{
-                      whiteSpace: "nowrap",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      lineHeight: "1.4",
+                      whiteSpace: "normal",
                     }}
                     title={app.notes || ""}
                   >
