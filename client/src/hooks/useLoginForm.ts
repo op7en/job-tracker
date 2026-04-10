@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 
 interface UseLoginFormReturn {
@@ -14,6 +15,7 @@ interface UseLoginFormReturn {
 }
 
 export const useLoginForm = (): UseLoginFormReturn => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,12 +26,12 @@ export const useLoginForm = (): UseLoginFormReturn => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!trimmedEmail || !password) {
-      toast.warning("Fill in all fields");
+      toast.warning(t("auth.fillAllFields"));
       return false;
     }
 
     if (!emailRegex.test(trimmedEmail)) {
-      toast.warning("Please enter a valid email address");
+      toast.warning(t("auth.invalidEmail"));
       return false;
     }
 
@@ -46,10 +48,10 @@ export const useLoginForm = (): UseLoginFormReturn => {
         password,
       });
       localStorage.setItem("token", res.data.token);
-      toast.success("Welcome back");
+      toast.success(t("auth.welcomeBack"));
       navigate("/dashboard");
     } catch {
-      toast.error("Invalid email or password");
+      toast.error(t("auth.invalidCredentials"));
     } finally {
       setLoading(false);
     }

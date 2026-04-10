@@ -19,7 +19,7 @@ export const LanguageSwitcher: React.FC = () => {
         outline: "none",
       }}
     >
-      <option value="en">🇬🇧 EN</option>
+      <option value="en">🇺🇸 EN</option>
       <option value="ru">🇷🇺 RU</option>
       <option value="it">🇮🇹 IT</option>
     </select>

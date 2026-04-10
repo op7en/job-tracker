@@ -23,7 +23,15 @@
     "signingIn": "Accesso...",
     "agreePrivacy": "Accetto la",
     "privacyPolicy": "privacy policy",
-    "contactForDeletion": "Per eliminare l'account o domande:"
+    "contactForDeletion": "Per eliminare l'account o domande:",
+    "fillAllFields": "Compila tutti i campi",
+    "invalidEmail": "Inserisci un indirizzo email valido",
+    "passwordTooShort": "La password deve contenere almeno 6 caratteri",
+    "mustAgree": "Devi accettare la privacy policy",
+    "accountCreated": "Account creato — ora accedi",
+    "registrationFailed": "Registrazione fallita. Email già in uso.",
+    "welcomeBack": "Bentornato",
+    "invalidCredentials": "Email o password non validi"
   },
   "dashboard": {
     "title": "JobTracker",
@@ -46,6 +54,7 @@
     "removed": "Rimosso",
     "deleteFailed": "Eliminazione fallita",
     "fillRequired": "Azienda e posizione sono obbligatorie",
+    "loadFailed": "Impossibile caricare le candidature",
     "stats": {
       "total": "Totale",
       "interview": "Colloqui",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 
 interface UseRegisterFormReturn {
@@ -16,6 +17,7 @@ interface UseRegisterFormReturn {
 }
 
 export const useRegisterForm = (): UseRegisterFormReturn => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -27,22 +29,22 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail || !password) {
-      toast.warning("Fill in all fields");
+      toast.warning(t("auth.fillAllFields"));
       return false;
     }
 
     if (!emailRegex.test(trimmedEmail)) {
-      toast.warning("Please enter a valid email address");
+      toast.warning(t("auth.invalidEmail"));
       return false;
     }
 
     if (password.length < 6) {
-      toast.warning("Password must be at least 6 characters");
+      toast.warning(t("auth.passwordTooShort"));
       return false;
     }
 
     if (!agreed) {
-      toast.warning("You must agree to the privacy policy");
+      toast.warning(t("auth.mustAgree"));
       return false;
     }
 
@@ -58,10 +60,10 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
         email: email.trim(),
         password,
       });
-      toast.success("Account created — sign in now");
+      toast.success(t("auth.accountCreated"));
       navigate("/");
     } catch {
-      toast.error("Registration failed. Email may be taken.");
+      toast.error(t("auth.registrationFailed"));
     } finally {
       setLoading(false);
     }

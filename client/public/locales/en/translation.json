@@ -23,7 +23,15 @@
     "signingIn": "Signing in...",
     "agreePrivacy": "I agree to the",
     "privacyPolicy": "privacy policy",
-    "contactForDeletion": "For account deletion or questions:"
+    "contactForDeletion": "For account deletion or questions:",
+    "fillAllFields": "Fill in all fields",
+    "invalidEmail": "Please enter a valid email address",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "mustAgree": "You must agree to the privacy policy",
+    "accountCreated": "Account created — sign in now",
+    "registrationFailed": "Registration failed. Email may be taken.",
+    "welcomeBack": "Welcome back",
+    "invalidCredentials": "Invalid email or password"
   },
   "dashboard": {
     "title": "JobTracker",
@@ -46,6 +54,7 @@
     "removed": "Removed",
     "deleteFailed": "Failed to delete",
     "fillRequired": "Company and position are required",
+    "loadFailed": "Failed to load applications",
     "stats": {
       "total": "Total",
       "interview": "Interview",

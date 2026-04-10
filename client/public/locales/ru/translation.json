@@ -23,7 +23,15 @@
     "signingIn": "Вход...",
     "agreePrivacy": "Я согласен с",
     "privacyPolicy": "политикой конфиденциальности",
-    "contactForDeletion": "Для удаления аккаунта или вопросов:"
+    "contactForDeletion": "Для удаления аккаунта или вопросов:",
+    "fillAllFields": "Заполните все поля",
+    "invalidEmail": "Введите корректный email адрес",
+    "passwordTooShort": "Пароль должен быть не менее 6 символов",
+    "mustAgree": "Необходимо согласиться с политикой конфиденциальности",
+    "accountCreated": "Аккаунт создан — теперь войдите",
+    "registrationFailed": "Ошибка регистрации. Возможно, email уже занят.",
+    "welcomeBack": "С возвращением",
+    "invalidCredentials": "Неверный email или пароль"
   },
   "dashboard": {
     "title": "JobTracker",
@@ -46,6 +54,7 @@
     "removed": "Удалено",
     "deleteFailed": "Не удалось удалить",
     "fillRequired": "Компания и должность обязательны",
+    "loadFailed": "Не удалось загрузить заявки",
     "stats": {
       "total": "Всего",
       "interview": "Собеседования",

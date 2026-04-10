@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import api from "../api/axios";
 
 export interface Application {
@@ -12,6 +13,7 @@ export interface Application {
 }
 
 export const useApplications = () => {
+  const { t } = useTranslation();
   const [applications, setApplications] = useState<Application[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
@@ -20,7 +22,7 @@ export const useApplications = () => {
       const res = await api.get("/applications");
       setApplications(res.data);
     } catch {
-      toast.error("Failed to load applications");
+      toast.error(t("dashboard.loadFailed"));
     } finally {
       setInitialLoading(false);
     }
