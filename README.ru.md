@@ -25,7 +25,7 @@ Fullstack-приложение для отслеживания откликов 
 | Деплой | Vercel (frontend) · Railway (backend + база данных) |
 
 ## Структура проекта
-
+```
 job-tracker/
 ├── client/                 # Frontend (React + TypeScript)
 │   └── src/
@@ -40,6 +40,7 @@ job-tracker/
 ├── routes/             # auth, applications
 ├── middleware/         # JWT auth
 └── index.ts
+```
 
 ## Запуск
 
