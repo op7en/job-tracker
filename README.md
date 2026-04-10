@@ -26,6 +26,7 @@ A fullstack web application for tracking job applications during your job search
 
 ## Project Structure
 
+```
 job-tracker/
 ├── client/                 # Frontend (React + TypeScript)
 │   └── src/
@@ -37,9 +38,10 @@ job-tracker/
 │       ├── i18n/           # Translations (en, ru, it)
 │       └── pages/          # Login, Register, Dashboard
 └── src/                    # Backend (Express + TypeScript)
-├── routes/             # auth, applications
-├── middleware/         # JWT auth
-└── index.ts
+    ├── routes/             # auth, applications
+    ├── middleware/         # JWT auth
+    └── index.ts
+```
 
 
 ## Getting Started
