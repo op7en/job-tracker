@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/Button";
 
 interface PrivacyModalProps {
@@ -12,6 +13,8 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
   onClose,
   onAccept,
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
   return (
@@ -22,8 +25,8 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(0, 0, 0, 0.7)", // Затемнение сильнее для лучшего контраста
-        backdropFilter: "blur(4px)", // Размытие фона
+        background: "rgba(0, 0, 0, 0.7)",
+        backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -58,7 +61,6 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div
           style={{
             padding: "20px 20px 16px",
@@ -74,13 +76,13 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
           >
             <h2
               style={{
-                fontSize: "18px", // Увеличил шрифт
-                fontWeight: 600, // Жирнее
+                fontSize: "18px",
+                fontWeight: 600,
                 color: "var(--text-primary)",
                 margin: 0,
               }}
             >
-              Политика конфиденциальности
+              {t("privacy.title")}
             </h2>
             <button
               onClick={onClose}
@@ -88,7 +90,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
                 background: "none",
                 border: "none",
                 color: "var(--text-secondary)",
-                fontSize: "28px", // Больше размер
+                fontSize: "28px",
                 cursor: "pointer",
                 padding: 0,
                 width: "32px",
@@ -113,81 +115,54 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
           </div>
         </div>
 
-        {/* Content */}
         <div
           style={{
-            padding: "24px", // Больше отступы
+            padding: "24px",
             overflowY: "auto",
-            fontSize: "14px", // Увеличил шрифт
-            color: "var(--text-primary)", // Основной цвет текста, не secondary
-            lineHeight: "1.7", // Больше межстрочный интервал
+            fontSize: "14px",
+            color: "var(--text-primary)",
+            lineHeight: "1.7",
           }}
         >
           <p style={{ marginTop: 0, marginBottom: "16px" }}>
-            <strong
-              style={{
-                color: "var(--text-primary)",
-                fontWeight: 600,
-              }}
-            >
-              1. Данные.
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {t("privacy.data")}
             </strong>{" "}
             <span style={{ color: "var(--text-primary)", opacity: 0.9 }}>
-              Мы собираем только ваш email, который вы указываете при
-              регистрации.
+              {t("privacy.dataText")}
             </span>
           </p>
 
           <p style={{ marginBottom: "16px" }}>
-            <strong
-              style={{
-                color: "var(--text-primary)",
-                fontWeight: 600,
-              }}
-            >
-              2. Доступ.
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {t("privacy.access")}
             </strong>{" "}
             <span style={{ color: "var(--text-primary)", opacity: 0.9 }}>
-              Разработчик (владелец базы данных) технически имеет доступ к
-              списку email-адресов. Это необходимо для администрирования сервера
-              и восстановления доступа по запросу.
+              {t("privacy.accessText")}
             </span>
           </p>
 
           <p style={{ marginBottom: "16px" }}>
-            <strong
-              style={{
-                color: "var(--text-primary)",
-                fontWeight: 600,
-              }}
-            >
-              3. Конфиденциальность.
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {t("privacy.confidentiality")}
             </strong>{" "}
             <span style={{ color: "var(--text-primary)", opacity: 0.9 }}>
-              Ваш email не будет передан третьим лицам, не будет продан
-              рекламодателям и не будет использован для маркетинговых рассылок.
+              {t("privacy.confidentialityText")}
             </span>
           </p>
 
           <p style={{ marginBottom: "16px" }}>
-            <strong
-              style={{
-                color: "var(--text-primary)",
-                fontWeight: 600,
-              }}
-            >
-              4. Удаление аккаунта.
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>
+              {t("privacy.deletion")}
             </strong>{" "}
             <span style={{ color: "var(--text-primary)", opacity: 0.9 }}>
-              Вы можете удалить свой аккаунт, отправив запрос на почту
-              администратора.
+              {t("privacy.deletionText")}
             </span>
           </p>
 
-          {/* Contact block */}
           <div
             style={{
-              background: "var(--bg-input)", // Более контрастный фон
+              background: "var(--bg-input)",
               padding: "16px",
               borderRadius: "8px",
               marginTop: "20px",
@@ -203,12 +178,14 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
                 fontSize: "15px",
               }}
             >
-              📧 Контакты для связи
+              {t("privacy.contact")}
             </p>
             <p
               style={{ margin: 0, color: "var(--text-primary)", opacity: 0.95 }}
             >
-              <span style={{ fontWeight: 500 }}>Email администратора:</span>{" "}
+              <span style={{ fontWeight: 500 }}>
+                {t("privacy.adminEmail")}:
+              </span>{" "}
               <a
                 href="mailto:perevalovoleg77@gmail.com"
                 style={{
@@ -216,12 +193,6 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
                   textDecoration: "none",
                   fontWeight: 500,
                   borderBottom: "1px solid var(--accent)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = "0.8";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = "1";
                 }}
               >
                 perevalovoleg77@gmail.com
@@ -235,8 +206,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
                 opacity: 0.8,
               }}
             >
-              По этому адресу вы можете отправить запрос на удаление аккаунта,
-              задать вопросы или сообщить о проблеме.
+              {t("privacy.contactNote")}
             </p>
           </div>
 
@@ -249,12 +219,10 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
               fontStyle: "italic",
             }}
           >
-            Используя сервис, вы подтверждаете, что ознакомлены и согласны с
-            данными условиями.
+            {t("privacy.acceptConfirm")}
           </p>
         </div>
 
-        {/* Footer */}
         <div
           style={{
             padding: "16px 24px",
@@ -269,7 +237,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
             onClick={onClose}
             style={{ width: "auto", minWidth: "100px" }}
           >
-            Отмена
+            {t("common.cancel")}
           </Button>
           <Button
             variant="primary"
@@ -279,7 +247,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({
             }}
             style={{ width: "auto", minWidth: "100px" }}
           >
-            Принимаю
+            {t("privacy.accept")}
           </Button>
         </div>
       </div>

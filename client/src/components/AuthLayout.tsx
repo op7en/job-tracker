@@ -1,17 +1,26 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "./ThemeToggle";
-
+import { LanguageSwitcher } from "./LanguageSwitcher";
 interface AuthLayoutProps {
   children: React.ReactNode;
-  title: string;
-  subtitle: string;
+  // убираем пропсы title/subtitle, берём из переводов по ключам
+  variant: "login" | "register";
 }
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({
   children,
-  title,
-  subtitle,
+  variant,
 }) => {
+  const { t } = useTranslation();
+
+  const title =
+    variant === "login" ? t("auth.signIn") : t("auth.createAccount");
+  const subtitle =
+    variant === "login"
+      ? t("auth.signInSubtitle")
+      : t("auth.createAccountSubtitle");
+
   return (
     <div
       style={{
@@ -26,8 +35,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           padding: "16px 24px",
           display: "flex",
           justifyContent: "flex-end",
+          gap: "12px",
+          alignItems: "center",
         }}
       >
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
       <div

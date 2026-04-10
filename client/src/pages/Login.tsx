@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AuthLayout } from "../components/AuthLayout";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
@@ -7,6 +8,7 @@ import { useLoginForm } from "../hooks/useLoginForm";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { email, setEmail, password, setPassword, loading, handleSubmit } =
     useLoginForm();
 
@@ -18,21 +20,18 @@ const Login: React.FC = () => {
   };
 
   return (
-    <AuthLayout
-      title="Sign in to JobTracker"
-      subtitle="Track your applications in one place"
-    >
+    <AuthLayout variant="login">
       <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <Input
           type="email"
-          placeholder="Email address"
+          placeholder={t("auth.emailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <Input
           type="password"
-          placeholder="Password"
+          placeholder={t("auth.passwordPlaceholder")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -40,10 +39,10 @@ const Login: React.FC = () => {
         <Button
           onClick={handleSubmit}
           loading={loading}
-          loadingText="Signing in..."
+          loadingText={t("auth.signingIn")}
           style={{ marginTop: "4px" }}
         >
-          Continue
+          {t("auth.continue")}
         </Button>
       </div>
 
@@ -55,12 +54,12 @@ const Login: React.FC = () => {
           color: "var(--text-secondary)",
         }}
       >
-        No account?{" "}
+        {t("auth.noAccount")}{" "}
         <span
           onClick={() => navigate("/register")}
           style={{ color: "var(--accent)", cursor: "pointer" }}
         >
-          Create one
+          {t("auth.createOne")}
         </span>
       </p>
     </AuthLayout>

@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContext";
 
 const ThemeToggle = () => {
+  const { t } = useTranslation();
   const { theme, toggle } = useTheme();
+
   return (
     <button
       onClick={toggle}
@@ -62,7 +65,7 @@ const ThemeToggle = () => {
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       )}
-      {theme === "dark" ? "Light" : "Dark"}
+      {theme === "dark" ? t("theme.light") : t("theme.dark")}
     </button>
   );
 };

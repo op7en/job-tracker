@@ -1,0 +1,76 @@
+{
+  "common": {
+    "add": "Add",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "signOut": "Sign out"
+  },
+  "auth": {
+    "signIn": "Sign in to JobTracker",
+    "signInSubtitle": "Track your applications in one place",
+    "noAccount": "No account?",
+    "createOne": "Create one",
+    "createAccount": "Create your account",
+    "createAccountSubtitle": "Start tracking your job applications",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "emailPlaceholder": "Email address",
+    "passwordPlaceholder": "Password",
+    "continue": "Continue",
+    "creating": "Creating account...",
+    "signingIn": "Signing in...",
+    "agreePrivacy": "I agree to the",
+    "privacyPolicy": "privacy policy",
+    "contactForDeletion": "For account deletion or questions:"
+  },
+  "dashboard": {
+    "title": "JobTracker",
+    "applicationsCount": "{{count}} application",
+    "applicationsCount_plural": "{{count}} applications",
+    "addApplication": "Add application",
+    "adding": "Adding...",
+    "company": "Company",
+    "position": "Position",
+    "notes": "Notes (optional)",
+    "status": "Status",
+    "applied": "Applied",
+    "interview": "Interview",
+    "rejected": "Rejected",
+    "offer": "Offer",
+    "update": "Update",
+    "noApplications": "No applications yet — add one above",
+    "added": "added",
+    "markedAs": "Marked as",
+    "removed": "Removed",
+    "deleteFailed": "Failed to delete",
+    "fillRequired": "Company and position are required",
+    "stats": {
+      "total": "Total",
+      "interview": "Interview",
+      "offers": "Offers",
+      "rejected": "Rejected"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "data": "1. Data.",
+    "dataText": "We only collect your email that you provide during registration.",
+    "access": "2. Access.",
+    "accessText": "The developer (database owner) technically has access to the list of email addresses. This is necessary for server administration and access recovery upon request.",
+    "confidentiality": "3. Confidentiality.",
+    "confidentialityText": "Your email will not be transferred to third parties, will not be sold to advertisers, and will not be used for marketing purposes.",
+    "deletion": "4. Account deletion.",
+    "deletionText": "You can delete your account by sending a request to the administrator's email.",
+    "contact": "📧 Contact information",
+    "adminEmail": "Administrator email",
+    "contactNote": "You can send an account deletion request, ask questions, or report a problem to this address.",
+    "acceptConfirm": "By using the service, you confirm that you have read and agree to these terms.",
+    "accept": "Accept"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  }
+}

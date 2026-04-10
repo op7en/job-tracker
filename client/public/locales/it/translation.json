@@ -1,0 +1,76 @@
+{
+  "common": {
+    "add": "Aggiungi",
+    "delete": "Elimina",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "loading": "Caricamento...",
+    "signOut": "Esci"
+  },
+  "auth": {
+    "signIn": "Accedi a JobTracker",
+    "signInSubtitle": "Tieni traccia delle tue candidature",
+    "noAccount": "Nessun account?",
+    "createOne": "Creane uno",
+    "createAccount": "Crea account",
+    "createAccountSubtitle": "Inizia a tracciare le tue candidature",
+    "alreadyHaveAccount": "Hai già un account?",
+    "signInLink": "Accedi",
+    "emailPlaceholder": "Indirizzo email",
+    "passwordPlaceholder": "Password",
+    "continue": "Continua",
+    "creating": "Creazione account...",
+    "signingIn": "Accesso...",
+    "agreePrivacy": "Accetto la",
+    "privacyPolicy": "privacy policy",
+    "contactForDeletion": "Per eliminare l'account o domande:"
+  },
+  "dashboard": {
+    "title": "JobTracker",
+    "applicationsCount": "{{count}} candidatura",
+    "applicationsCount_plural": "{{count}} candidature",
+    "addApplication": "Aggiungi candidatura",
+    "adding": "Aggiunta...",
+    "company": "Azienda",
+    "position": "Posizione",
+    "notes": "Note (opzionale)",
+    "status": "Stato",
+    "applied": "Candidato",
+    "interview": "Colloquio",
+    "rejected": "Rifiutato",
+    "offer": "Offerta",
+    "update": "Aggiorna",
+    "noApplications": "Nessuna candidatura — aggiungine una",
+    "added": "aggiunto",
+    "markedAs": "Segnato come",
+    "removed": "Rimosso",
+    "deleteFailed": "Eliminazione fallita",
+    "fillRequired": "Azienda e posizione sono obbligatorie",
+    "stats": {
+      "total": "Totale",
+      "interview": "Colloqui",
+      "offers": "Offerte",
+      "rejected": "Rifiutati"
+    }
+  },
+  "privacy": {
+    "title": "Informativa sulla privacy",
+    "data": "1. Dati.",
+    "dataText": "Raccogliamo solo la tua email che fornisci durante la registrazione.",
+    "access": "2. Accesso.",
+    "accessText": "Lo sviluppatore ha accesso tecnico alla lista di email per l'amministrazione del server.",
+    "confidentiality": "3. Riservatezza.",
+    "confidentialityText": "La tua email non sarà trasferita a terzi né usata per marketing.",
+    "deletion": "4. Eliminazione account.",
+    "deletionText": "Puoi eliminare il tuo account inviando una richiesta all'email dell'amministratore.",
+    "contact": "📧 Contatti",
+    "adminEmail": "Email amministratore",
+    "contactNote": "A questo indirizzo puoi richiedere l'eliminazione dell'account o fare domande.",
+    "acceptConfirm": "Usando il servizio confermi di aver letto e accettato questi termini.",
+    "accept": "Accetto"
+  },
+  "theme": {
+    "light": "Chiaro",
+    "dark": "Scuro"
+  }
+}
