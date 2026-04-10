@@ -57,7 +57,12 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
       value: position,
       setter: setPosition,
     },
-    { placeholder: t("dashboard.notes"), value: notes, setter: setNotes },
+    {
+      placeholder: t("dashboard.notes"),
+      value: notes,
+      setter: setNotes,
+      maxLength: 200,
+    },
   ];
 
   return (
@@ -73,13 +78,14 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
         flexWrap: "wrap",
       }}
     >
-      {placeholders.map(({ placeholder, value, setter }) => (
+      {placeholders.map(({ placeholder, value, setter, maxLength }) => (
         <input
           key={placeholder}
           placeholder={placeholder}
           value={value}
           onChange={(e) => setter(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          maxLength={maxLength}
           style={{ ...inputStyle, flex: "1 1 140px" }}
           onFocus={(e) =>
             (e.currentTarget.style.borderColor = "var(--border-focus)")
