@@ -111,10 +111,12 @@ const Dashboard = () => {
             {t("dashboard.title")}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-            {t("dashboard.applicationsCount", { count: applications.length })}
-          </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {!isMobile && (
+            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+              {t("dashboard.applicationsCount", { count: applications.length })}
+            </span>
+          )}
           <LanguageSwitcher />
           <button
             onClick={handleLogout}
@@ -122,13 +124,13 @@ const Dashboard = () => {
               background: "transparent",
               border: "1px solid var(--border)",
               borderRadius: "6px",
-              padding: "5px 10px",
+              padding: "5px 8px",
               color: "var(--text-secondary)",
               fontSize: "12px",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "5px",
+              gap: isMobile ? "0" : "5px",
               transition: "all 0.15s",
             }}
             onMouseEnter={(e) => {
@@ -156,7 +158,7 @@ const Dashboard = () => {
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            {t("common.signOut")}
+            {!isMobile && t("common.signOut")}
           </button>
           <ThemeToggle />
         </div>
