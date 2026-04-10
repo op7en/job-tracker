@@ -142,12 +142,9 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                 >
                   <div
                     style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
                       lineHeight: "1.4",
                       whiteSpace: "normal",
+                      wordBreak: "break-word",
                     }}
                     title={app.notes || ""}
                   >
