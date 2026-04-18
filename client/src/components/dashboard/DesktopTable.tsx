@@ -100,7 +100,6 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
         background: "var(--bg-surface)",
         border: "1px solid var(--border)",
         borderRadius: "10px",
-        overflow: "hidden",
       }}
     >
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -268,53 +267,82 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                       {app.date_applied.slice(0, 10)}
                     </span>
                   </td>
-                  {/* Status select (quick update, always visible) */}
-                  <td style={{ padding: "11px 16px" }}>
-                    <select
-                      value={app.status}
-                      onChange={(e) => onUpdateStatus(app.id, e.target.value)}
-                      style={{
-                        background: "var(--bg-elevated)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "6px",
-                        padding: "5px 8px",
-                        color: "var(--text-primary)",
-                        fontSize: "12px",
-                        cursor: "pointer",
-                        outline: "none",
-                      }}
-                    >
-                      {statusOptions.map(({ value, label }) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  {/* Actions */}
-                  <td style={{ padding: "11px 16px" }}>
-                    <div style={{ display: "flex", gap: "6px" }}>
-                      {isEditing ? (
-                        <>
+                  {/* Status select (quick update) OR save/cancel when editing */}
+                  {isEditing ? (
+                    <td colSpan={3} style={{ padding: "11px 16px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "6px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <button
+                          onClick={saveEditing}
+                          disabled={isSaving}
+                          style={{
+                            background: "var(--accent)",
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "5px 14px",
+                            color: "#fff",
+                            fontSize: "12px",
+                            cursor: isSaving ? "not-allowed" : "pointer",
+                            opacity: isSaving ? 0.7 : 1,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {isSaving ? "..." : t("common.save")}
+                        </button>
+                        <button
+                          disabled={isSaving}
+                          onClick={cancelEditing}
+                          style={{
+                            background: "transparent",
+                            border: "1px solid var(--border)",
+                            borderRadius: "6px",
+                            padding: "5px 14px",
+                            color: "var(--text-secondary)",
+                            fontSize: "12px",
+                            cursor: isSaving ? "not-allowed" : "pointer",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {t("common.cancel")}
+                        </button>
+                      </div>
+                    </td>
+                  ) : (
+                    <>
+                      <td style={{ padding: "11px 16px" }}>
+                        <select
+                          value={app.status}
+                          onChange={(e) =>
+                            onUpdateStatus(app.id, e.target.value)
+                          }
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "6px",
+                            padding: "5px 8px",
+                            color: "var(--text-primary)",
+                            fontSize: "12px",
+                            cursor: "pointer",
+                            outline: "none",
+                          }}
+                        >
+                          {statusOptions.map(({ value, label }) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      {/* Actions */}
+                      <td style={{ padding: "11px 16px" }}>
+                        <div style={{ display: "flex", gap: "6px" }}>
                           <button
-                            onClick={saveEditing}
-                            disabled={isSaving}
-                            style={{
-                              background: "var(--accent)",
-                              border: "none",
-                              borderRadius: "6px",
-                              padding: "5px 10px",
-                              color: "#fff",
-                              fontSize: "12px",
-                              cursor: isSaving ? "not-allowed" : "pointer",
-                              opacity: isSaving ? 0.7 : 1,
-                            }}
-                          >
-                            {isSaving ? "..." : t("common.save")}
-                          </button>
-                          <button
-                            disabled={isSaving}
-                            onClick={cancelEditing}
+                            onClick={() => startEditing(app)}
                             style={{
                               background: "transparent",
                               border: "1px solid var(--border)",
@@ -322,106 +350,92 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                               padding: "5px 10px",
                               color: "var(--text-secondary)",
                               fontSize: "12px",
-                              cursor: isSaving ? "not-allowed" : "pointer",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                            }}
+                            onMouseEnter={(e) => {
+                              const el = e.currentTarget as HTMLButtonElement;
+                              el.style.borderColor = "var(--accent)";
+                              el.style.color = "var(--accent)";
+                              el.style.background = "var(--accent-muted)";
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLButtonElement;
+                              el.style.borderColor = "var(--border)";
+                              el.style.color = "var(--text-secondary)";
+                              el.style.background = "transparent";
                             }}
                           >
-                            {t("common.cancel")}
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => startEditing(app)}
-                          style={{
-                            background: "transparent",
-                            border: "1px solid var(--border)",
-                            borderRadius: "6px",
-                            padding: "5px 10px",
-                            color: "var(--text-secondary)",
-                            fontSize: "12px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "4px",
-                          }}
-                          onMouseEnter={(e) => {
-                            const el = e.currentTarget as HTMLButtonElement;
-                            el.style.borderColor = "var(--accent)";
-                            el.style.color = "var(--accent)";
-                            el.style.background = "var(--accent-muted)";
-                          }}
-                          onMouseLeave={(e) => {
-                            const el = e.currentTarget as HTMLButtonElement;
-                            el.style.borderColor = "var(--border)";
-                            el.style.color = "var(--text-secondary)";
-                            el.style.background = "transparent";
-                          }}
-                        >
-                          <svg
-                            width="13"
-                            height="13"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z" />
-                          </svg>
-                        </button>
-                      )}
-                      {!isEditing && (
-                        <button
-                          onClick={() => onDelete(app.id)}
-                          disabled={deletingId === app.id}
-                          style={{
-                            background: "transparent",
-                            border: "1px solid var(--border)",
-                            borderRadius: "6px",
-                            padding: "5px 10px",
-                            color: "var(--text-secondary)",
-                            fontSize: "12px",
-                            cursor:
-                              deletingId === app.id ? "not-allowed" : "pointer",
-                            opacity: deletingId === app.id ? 0.5 : 1,
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                          onMouseEnter={(e) => {
-                            if (deletingId !== app.id) {
-                              const el = e.currentTarget as HTMLButtonElement;
-                              el.style.borderColor = "var(--danger)";
-                              el.style.color = "var(--danger)";
-                              el.style.background = "var(--danger-muted)";
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            const el = e.currentTarget as HTMLButtonElement;
-                            el.style.borderColor = "var(--border)";
-                            el.style.color = "var(--text-secondary)";
-                            el.style.background = "transparent";
-                          }}
-                        >
-                          {deletingId === app.id ? (
-                            <Spinner size={11} />
-                          ) : (
                             <svg
-                              width="11"
-                              height="11"
+                              width="13"
+                              height="13"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
                               strokeWidth="2"
                             >
-                              <polyline points="3 6 5 6 21 6" />
-                              <path d="M19 6l-1 14H6L5 6" />
-                              <path d="M10 11v6M14 11v6" />
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                              <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z" />
                             </svg>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </td>
+                          </button>
+                          <button
+                            onClick={() => onDelete(app.id)}
+                            disabled={deletingId === app.id}
+                            style={{
+                              background: "transparent",
+                              border: "1px solid var(--border)",
+                              borderRadius: "6px",
+                              padding: "5px 10px",
+                              color: "var(--text-secondary)",
+                              fontSize: "12px",
+                              cursor:
+                                deletingId === app.id
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity: deletingId === app.id ? 0.5 : 1,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "5px",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (deletingId !== app.id) {
+                                const el = e.currentTarget as HTMLButtonElement;
+                                el.style.borderColor = "var(--danger)";
+                                el.style.color = "var(--danger)";
+                                el.style.background = "var(--danger-muted)";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              const el = e.currentTarget as HTMLButtonElement;
+                              el.style.borderColor = "var(--border)";
+                              el.style.color = "var(--text-secondary)";
+                              el.style.background = "transparent";
+                            }}
+                          >
+                            {deletingId === app.id ? (
+                              <Spinner size={11} />
+                            ) : (
+                              <svg
+                                width="13"
+                                height="13"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14H6L5 6" />
+                                <path d="M10 11v6M14 11v6" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                      <td />
+                    </>
+                  )}
                 </tr>
               );
             })
