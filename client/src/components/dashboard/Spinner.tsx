@@ -1,16 +1,25 @@
 import React from "react";
 
-export const Spinner: React.FC<{ size?: number }> = ({ size = 13 }) => (
+interface SpinnerProps {
+  size?: number;
+  color?: string;
+}
+
+export const Spinner: React.FC<SpinnerProps> = ({
+  size = 13,
+  color = "currentColor",
+}) => (
   <>
     <span
       style={{
         width: size,
         height: size,
-        border: "1.5px solid rgba(255,255,255,0.25)",
-        borderTopColor: "#fff",
+        border: `1.5px solid transparent`,
+        borderTopColor: color,
+        borderRightColor: color,
         borderRadius: "50%",
         display: "inline-block",
-        animation: "spin 0.6s linear infinite",
+        animation: "spin 0.55s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         flexShrink: 0,
       }}
     />

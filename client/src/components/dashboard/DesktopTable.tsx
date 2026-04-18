@@ -288,11 +288,16 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                             color: "#fff",
                             fontSize: "12px",
                             cursor: isSaving ? "not-allowed" : "pointer",
-                            opacity: isSaving ? 0.7 : 1,
+                            opacity: isSaving ? 0.85 : 1,
                             whiteSpace: "nowrap",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            transition: "opacity 0.15s",
                           }}
                         >
-                          {isSaving ? "..." : t("common.save")}
+                          {isSaving && <Spinner size={11} color="#fff" />}
+                          {t("common.save")}
                         </button>
                         <button
                           disabled={isSaving}

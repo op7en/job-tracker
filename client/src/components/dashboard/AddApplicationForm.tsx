@@ -105,7 +105,7 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
           fontSize: "13px",
           fontWeight: 500,
           cursor: isAdding ? "not-allowed" : "pointer",
-          opacity: isAdding ? 0.7 : 1,
+          opacity: isAdding ? 0.85 : 1,
           display: "flex",
           alignItems: "center",
           gap: "7px",
@@ -125,7 +125,7 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
         }}
       >
         {isAdding ? (
-          <Spinner />
+          <Spinner size={13} color="#fff" />
         ) : (
           <svg
             width="13"

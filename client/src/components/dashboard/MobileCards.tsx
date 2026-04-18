@@ -187,10 +187,16 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                       color: "#fff",
                       fontSize: "13px",
                       cursor: isSaving ? "not-allowed" : "pointer",
-                      opacity: isSaving ? 0.7 : 1,
+                      opacity: isSaving ? 0.85 : 1,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      transition: "opacity 0.15s",
                     }}
                   >
-                    {isSaving ? "..." : t("common.save")}
+                    {isSaving && <Spinner size={12} color="#fff" />}
+                    {t("common.save")}
                   </button>
                   <button
                     disabled={isSaving}
