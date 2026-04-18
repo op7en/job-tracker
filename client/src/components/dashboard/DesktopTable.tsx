@@ -39,15 +39,20 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
   const [editCompany, setEditCompany] = useState("");
   const [editPosition, setEditPosition] = useState("");
   const [editNotes, setEditNotes] = useState("");
-  const [editStatus, setEditStatus] = useState("applied");
   const [isSaving, setIsSaving] = useState(false);
+
+  const statusOptions = [
+    { value: "applied", label: t("dashboard.applied") },
+    { value: "interview", label: t("dashboard.interview") },
+    { value: "offer", label: t("dashboard.offer") },
+    { value: "rejected", label: t("dashboard.rejected") },
+  ];
 
   const startEditing = (app: Application) => {
     setEditingId(app.id);
     setEditCompany(app.company);
     setEditPosition(app.position);
     setEditNotes(app.notes || "");
-    setEditStatus(app.status);
   };
 
   const cancelEditing = () => {
@@ -61,7 +66,6 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
       company: editCompany,
       position: editPosition,
       notes: editNotes,
-      status: editStatus,
     });
     setIsSaving(false);
     setEditingId(null);
@@ -88,13 +92,6 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
     t("dashboard.update"),
     "",
     "",
-  ];
-
-  const statusOptions = [
-    { value: "applied", label: t("dashboard.applied") },
-    { value: "interview", label: t("dashboard.interview") },
-    { value: "rejected", label: t("dashboard.rejected") },
-    { value: "offer", label: t("dashboard.offer") },
   ];
 
   return (
@@ -152,6 +149,12 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                   <td style={{ padding: "11px 16px" }}>
                     {isEditing ? (
                       <input
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEditing();
+                          if (e.key === "Escape") cancelEditing();
+                        }}
+                        autoFocus
+                        disabled={isSaving}
                         value={editCompany}
                         onChange={(e) => setEditCompany(e.target.value)}
                         style={{
@@ -180,6 +183,11 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                   <td style={{ padding: "11px 16px" }}>
                     {isEditing ? (
                       <input
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEditing();
+                          if (e.key === "Escape") cancelEditing();
+                        }}
+                        disabled={isSaving}
                         value={editPosition}
                         onChange={(e) => setEditPosition(e.target.value)}
                         style={{
@@ -203,37 +211,19 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                       </span>
                     )}
                   </td>
-                  {/* Status */}
+                  {/* Status — always badge, never editable here */}
                   <td style={{ padding: "11px 16px" }}>
-                    {isEditing ? (
-                      <select
-                        value={editStatus}
-                        onChange={(e) => setEditStatus(e.target.value)}
-                        style={{
-                          background: "var(--bg-elevated)",
-                          border: "1px solid var(--border)",
-                          borderRadius: "6px",
-                          padding: "5px 8px",
-                          color: "var(--text-primary)",
-                          fontSize: "12px",
-                          cursor: "pointer",
-                          outline: "none",
-                        }}
-                      >
-                        {statusOptions.map(({ value, label }) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <StatusBadge status={app.status} />
-                    )}
+                    <StatusBadge status={app.status} />
                   </td>
                   {/* Notes */}
                   <td style={{ padding: "11px 16px", maxWidth: "220px" }}>
                     {isEditing ? (
                       <input
+                        disabled={isSaving}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEditing();
+                          if (e.key === "Escape") cancelEditing();
+                        }}
                         value={editNotes}
                         onChange={(e) => setEditNotes(e.target.value)}
                         maxLength={200}
@@ -278,30 +268,28 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                       {app.date_applied.slice(0, 10)}
                     </span>
                   </td>
-                  {/* Status select (when not editing) */}
+                  {/* Status select (quick update, always visible) */}
                   <td style={{ padding: "11px 16px" }}>
-                    {!isEditing && (
-                      <select
-                        value={app.status}
-                        onChange={(e) => onUpdateStatus(app.id, e.target.value)}
-                        style={{
-                          background: "var(--bg-elevated)",
-                          border: "1px solid var(--border)",
-                          borderRadius: "6px",
-                          padding: "5px 8px",
-                          color: "var(--text-primary)",
-                          fontSize: "12px",
-                          cursor: "pointer",
-                          outline: "none",
-                        }}
-                      >
-                        {statusOptions.map(({ value, label }) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                    <select
+                      value={app.status}
+                      onChange={(e) => onUpdateStatus(app.id, e.target.value)}
+                      style={{
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "6px",
+                        padding: "5px 8px",
+                        color: "var(--text-primary)",
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        outline: "none",
+                      }}
+                    >
+                      {statusOptions.map(({ value, label }) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   {/* Actions */}
                   <td style={{ padding: "11px 16px" }}>
@@ -318,12 +306,14 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                               padding: "5px 10px",
                               color: "#fff",
                               fontSize: "12px",
-                              cursor: "pointer",
+                              cursor: isSaving ? "not-allowed" : "pointer",
+                              opacity: isSaving ? 0.7 : 1,
                             }}
                           >
                             {isSaving ? "..." : t("common.save")}
                           </button>
                           <button
+                            disabled={isSaving}
                             onClick={cancelEditing}
                             style={{
                               background: "transparent",
@@ -332,7 +322,7 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                               padding: "5px 10px",
                               color: "var(--text-secondary)",
                               fontSize: "12px",
-                              cursor: "pointer",
+                              cursor: isSaving ? "not-allowed" : "pointer",
                             }}
                           >
                             {t("common.cancel")}

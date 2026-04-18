@@ -38,15 +38,20 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
   const [editCompany, setEditCompany] = useState("");
   const [editPosition, setEditPosition] = useState("");
   const [editNotes, setEditNotes] = useState("");
-  const [editStatus, setEditStatus] = useState("applied");
   const [isSaving, setIsSaving] = useState(false);
+
+  const statusOptions = [
+    { value: "applied", label: t("dashboard.applied") },
+    { value: "interview", label: t("dashboard.interview") },
+    { value: "offer", label: t("dashboard.offer") },
+    { value: "rejected", label: t("dashboard.rejected") },
+  ];
 
   const startEditing = (app: Application) => {
     setEditingId(app.id);
     setEditCompany(app.company);
     setEditPosition(app.position);
     setEditNotes(app.notes || "");
-    setEditStatus(app.status);
   };
 
   const cancelEditing = () => setEditingId(null);
@@ -58,18 +63,10 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
       company: editCompany,
       position: editPosition,
       notes: editNotes,
-      status: editStatus,
     });
     setIsSaving(false);
     setEditingId(null);
   };
-
-  const statusOptions = [
-    { value: "applied", label: t("dashboard.applied") },
-    { value: "interview", label: t("dashboard.interview") },
-    { value: "rejected", label: t("dashboard.rejected") },
-    { value: "offer", label: t("dashboard.offer") },
-  ];
 
   if (initialLoading) {
     return (
@@ -113,6 +110,12 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
             {isEditing ? (
               <>
                 <input
+                  disabled={isSaving}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEditing();
+                    if (e.key === "Escape") cancelEditing();
+                  }}
+                  autoFocus
                   value={editCompany}
                   onChange={(e) => setEditCompany(e.target.value)}
                   placeholder={t("dashboard.company")}
@@ -125,9 +128,15 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                     fontSize: "14px",
                     width: "100%",
                     marginBottom: "8px",
+                    boxSizing: "border-box",
                   }}
                 />
                 <input
+                  disabled={isSaving}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEditing();
+                    if (e.key === "Escape") cancelEditing();
+                  }}
                   value={editPosition}
                   onChange={(e) => setEditPosition(e.target.value)}
                   placeholder={t("dashboard.position")}
@@ -140,9 +149,15 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                     fontSize: "14px",
                     width: "100%",
                     marginBottom: "8px",
+                    boxSizing: "border-box",
                   }}
                 />
                 <input
+                  disabled={isSaving}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEditing();
+                    if (e.key === "Escape") cancelEditing();
+                  }}
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
                   placeholder={t("dashboard.notes")}
@@ -155,33 +170,14 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                     color: "var(--text-primary)",
                     fontSize: "14px",
                     width: "100%",
-                    marginBottom: "8px",
+                    marginBottom: "12px",
+                    boxSizing: "border-box",
                   }}
                 />
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value)}
-                  style={{
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border)",
-                    borderRadius: "6px",
-                    padding: "8px 12px",
-                    color: "var(--text-primary)",
-                    fontSize: "14px",
-                    width: "100%",
-                    marginBottom: "12px",
-                  }}
-                >
-                  {statusOptions.map(({ value, label }) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
-                    onClick={saveEditing}
                     disabled={isSaving}
+                    onClick={saveEditing}
                     style={{
                       flex: 1,
                       background: "var(--accent)",
@@ -190,12 +186,14 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                       padding: "8px",
                       color: "#fff",
                       fontSize: "13px",
-                      cursor: "pointer",
+                      cursor: isSaving ? "not-allowed" : "pointer",
+                      opacity: isSaving ? 0.7 : 1,
                     }}
                   >
                     {isSaving ? "..." : t("common.save")}
                   </button>
                   <button
+                    disabled={isSaving}
                     onClick={cancelEditing}
                     style={{
                       flex: 1,
@@ -205,7 +203,7 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                       padding: "8px",
                       color: "var(--text-secondary)",
                       fontSize: "13px",
-                      cursor: "pointer",
+                      cursor: isSaving ? "not-allowed" : "pointer",
                     }}
                   >
                     {t("common.cancel")}

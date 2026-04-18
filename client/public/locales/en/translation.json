@@ -1,6 +1,7 @@
 {
   "common": {
     "add": "Add",
+    "edit": "Edit",
     "delete": "Delete",
     "cancel": "Cancel",
     "save": "Save",
@@ -47,6 +48,7 @@
     "interview": "Interview",
     "rejected": "Rejected",
     "offer": "Offer",
+    "updated": "Application updated",
     "update": "Update",
     "noApplications": "No applications yet — add one above",
     "added": "added",

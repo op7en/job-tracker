@@ -1,6 +1,7 @@
 {
   "common": {
     "add": "Aggiungi",
+    "edit": "Modifica",
     "delete": "Elimina",
     "cancel": "Annulla",
     "save": "Salva",
@@ -47,6 +48,7 @@
     "interview": "Colloquio",
     "rejected": "Rifiutato",
     "offer": "Offerta",
+    "updated": "Candidatura aggiornata",
     "update": "Aggiorna",
     "noApplications": "Nessuna candidatura — aggiungine una",
     "added": "aggiunto",
