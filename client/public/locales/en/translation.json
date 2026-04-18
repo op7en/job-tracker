@@ -55,6 +55,8 @@
     "markedAs": "Marked as",
     "removed": "Removed",
     "deleteFailed": "Failed to delete",
+    "addFailed": "Failed to add application",
+    "updateFailed": "Failed to update",
     "fillRequired": "Company and position are required",
     "loadFailed": "Failed to load applications",
     "stats": {

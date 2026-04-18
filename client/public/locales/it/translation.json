@@ -55,6 +55,8 @@
     "markedAs": "Segnato come",
     "removed": "Rimosso",
     "deleteFailed": "Eliminazione fallita",
+    "addFailed": "Impossibile aggiungere la candidatura",
+    "updateFailed": "Impossibile aggiornare",
     "fillRequired": "Azienda e posizione sono obbligatorie",
     "loadFailed": "Impossibile caricare le candidature",
     "stats": {
