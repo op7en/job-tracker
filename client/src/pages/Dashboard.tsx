@@ -63,7 +63,6 @@ const Dashboard = () => {
     setDeletingId(id);
     try {
       await deleteApplication(id);
-      toast.success(t("dashboard.removed"));
     } catch {
       toast.error(t("dashboard.deleteFailed"));
     } finally {
