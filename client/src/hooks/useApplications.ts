@@ -52,12 +52,16 @@ export const useApplications = () => {
     await api.delete(`/applications/${id}`);
     setApplications((prev) => prev.filter((a) => a.id !== id));
   };
-
+  const updateApplication = async (id: number, data: Partial<Application>) => {
+    await api.patch(`/applications/${id}`, data);
+    await fetchApplications();
+  };
   return {
     applications,
     initialLoading,
     addApplication,
     updateStatus,
     deleteApplication,
+    updateApplication,
   };
 };

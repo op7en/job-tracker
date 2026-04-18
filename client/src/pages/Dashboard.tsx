@@ -10,6 +10,15 @@ import { AddApplicationForm } from "../components/dashboard/AddApplicationForm";
 import { DesktopTable } from "../components/dashboard/DesktopTable";
 import { MobileCards } from "../components/dashboard/MobileCards";
 
+interface Application {
+  id: number;
+  company: string;
+  position: string;
+  status: string;
+  date_applied: string;
+  notes: string;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -19,6 +28,7 @@ const Dashboard = () => {
     addApplication,
     updateStatus,
     deleteApplication,
+    updateApplication, // <-- добавь это в хуке
   } = useApplications();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -61,6 +71,14 @@ const Dashboard = () => {
     }
   };
 
+  const handleUpdateApplication = async (
+    id: number,
+    data: Partial<Application>,
+  ) => {
+    await updateApplication(id, data);
+    toast.success(t("dashboard.updated"));
+  };
+
   const stats = {
     total: applications.length,
     interview: applications.filter((a) => a.status === "interview").length,
@@ -70,6 +88,7 @@ const Dashboard = () => {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-app)" }}>
+      {/* Header — без изменений */}
       <div
         style={{
           borderBottom: "1px solid var(--border)",
@@ -181,6 +200,7 @@ const Dashboard = () => {
             initialLoading={initialLoading}
             onUpdateStatus={handleUpdateStatus}
             onDelete={handleDelete}
+            onUpdateApplication={handleUpdateApplication}
             deletingId={deletingId}
           />
         ) : (
@@ -189,6 +209,7 @@ const Dashboard = () => {
             initialLoading={initialLoading}
             onUpdateStatus={handleUpdateStatus}
             onDelete={handleDelete}
+            onUpdateApplication={handleUpdateApplication}
             deletingId={deletingId}
           />
         )}
