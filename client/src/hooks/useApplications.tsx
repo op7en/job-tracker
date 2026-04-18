@@ -99,22 +99,70 @@ export const useApplications = () => {
     }
   };
 
-  // Optimistic: удаляем сразу, откат при ошибке
+  // Undo delete: убираем из стейта мгновенно, даём 5 секунд на отмену
   const deleteApplication = async (id: number) => {
     const previous = applications.find((a) => a.id === id);
+    if (!previous) return;
 
+    // убираем из UI мгновенно
     setApplications((prev) => prev.filter((a) => a.id !== id));
 
-    try {
-      await api.delete(`/applications/${id}`);
-    } catch {
-      if (previous) {
-        setApplications((prev) =>
-          [...prev, previous].sort((a, b) => b.id - a.id),
-        );
-      }
-      toast.error(t("dashboard.deleteFailed"));
-    }
+    let undone = false;
+
+    toast(
+      ({ closeToast }) => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+            width: "100%",
+          }}
+        >
+          <span style={{ fontSize: "13px" }}>{t("dashboard.removed")}</span>
+          <button
+            onClick={() => {
+              undone = true;
+              // возвращаем запись на место
+              setApplications((prev) =>
+                [...prev, previous].sort((a, b) => b.id - a.id),
+              );
+              closeToast();
+            }}
+            style={{
+              background: "transparent",
+              border: "1px solid currentColor",
+              borderRadius: "5px",
+              padding: "3px 10px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: "pointer",
+              color: "inherit",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            {t("common.undo")}
+          </button>
+        </div>
+      ),
+      {
+        autoClose: 5000,
+        onClose: async () => {
+          if (undone) return; // пользователь нажал Undo — DELETE не отправляем
+          try {
+            await api.delete(`/applications/${id}`);
+          } catch {
+            // сервер не удалил — возвращаем
+            setApplications((prev) =>
+              [...prev, previous].sort((a, b) => b.id - a.id),
+            );
+            toast.error(t("dashboard.deleteFailed"));
+          }
+        },
+      },
+    );
   };
 
   return {
