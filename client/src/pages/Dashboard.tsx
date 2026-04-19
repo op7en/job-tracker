@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import ThemeToggle from "../components/ThemeToggle";
@@ -21,7 +20,6 @@ interface Application {
 }
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const {
     applications,
@@ -40,11 +38,6 @@ const Dashboard = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
 
   const handleAdd = async (data: {
     company: string;

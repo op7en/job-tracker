@@ -34,7 +34,6 @@ const LogoutButton = () => {
         el.style.color = "var(--text-secondary)";
         el.style.background = "transparent";
       }}
-      title={t("common.signOut")}
     >
       <svg
         width="14"
