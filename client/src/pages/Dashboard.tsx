@@ -10,6 +10,7 @@ import { AddApplicationForm } from "../components/dashboard/AddApplicationForm";
 import { DesktopTable } from "../components/dashboard/DesktopTable";
 import { MobileCards } from "../components/dashboard/MobileCards";
 import { KanbanBoard } from "../components/dashboard/KanbanBoard";
+import LogoutButton from "../components/LogoutButton";
 interface Application {
   id: number;
   company: string;
@@ -174,48 +175,7 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: "transparent",
-              border: "1px solid var(--border)",
-              borderRadius: "6px",
-              padding: "5px 8px",
-              color: "var(--text-secondary)",
-              fontSize: "12px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: isMobile ? "0" : "5px",
-              transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLButtonElement;
-              el.style.borderColor = "var(--danger)";
-              el.style.color = "var(--danger)";
-              el.style.background = "var(--danger-muted)";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLButtonElement;
-              el.style.borderColor = "var(--border)";
-              el.style.color = "var(--text-secondary)";
-              el.style.background = "transparent";
-            }}
-          >
-            <svg
-              width="11"
-              height="11"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            {!isMobile && t("common.signOut")}
-          </button>
+          <LogoutButton />
           <ThemeToggle />
         </div>
       </div>

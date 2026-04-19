@@ -1,8 +1,6 @@
-import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContext";
 
 const ThemeToggle = () => {
-  const { t } = useTranslation();
   const { theme, toggle } = useTheme();
 
   return (
@@ -12,13 +10,11 @@ const ThemeToggle = () => {
         background: "var(--bg-elevated)",
         border: "1px solid var(--border)",
         borderRadius: "6px",
-        padding: "6px 10px",
+        padding: "6px 8px",
         cursor: "pointer",
         color: "var(--text-secondary)",
-        fontSize: "13px",
         display: "flex",
         alignItems: "center",
-        gap: "6px",
         transition: "all 0.15s",
       }}
       onMouseEnter={(e) => {
@@ -36,8 +32,8 @@ const ThemeToggle = () => {
     >
       {theme === "dark" ? (
         <svg
-          width="13"
-          height="13"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -55,8 +51,8 @@ const ThemeToggle = () => {
         </svg>
       ) : (
         <svg
-          width="13"
-          height="13"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -65,7 +61,6 @@ const ThemeToggle = () => {
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       )}
-      {theme === "dark" ? t("theme.light") : t("theme.dark")}
     </button>
   );
 };

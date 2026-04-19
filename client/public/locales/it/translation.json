@@ -6,8 +6,7 @@
     "cancel": "Annulla",
     "save": "Salva",
     "undo": "Annulla",
-    "loading": "Caricamento...",
-    "signOut": "Esci"
+    "loading": "Caricamento..."
   },
   "auth": {
     "signIn": "Accedi a JobTracker",
@@ -85,9 +84,5 @@
     "contactNote": "A questo indirizzo puoi richiedere l'eliminazione dell'account o fare domande.",
     "acceptConfirm": "Usando il servizio confermi di aver letto e accettato questi termini.",
     "accept": "Accetto"
-  },
-  "theme": {
-    "light": "Chiaro",
-    "dark": "Scuro"
   }
 }
