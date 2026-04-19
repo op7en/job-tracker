@@ -37,6 +37,7 @@
   },
   "dashboard": {
     "title": "JobTracker",
+    "responseRate": "Tasso risposta",
     "applicationsCount": "{{count}} candidatura",
     "applicationsCount_plural": "{{count}} candidature",
     "addApplication": "Aggiungi candidatura",

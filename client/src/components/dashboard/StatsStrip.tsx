@@ -6,6 +6,7 @@ interface StatsStripProps {
   interview: number;
   offer: number;
   rejected: number;
+  responseRate: number;
 }
 
 export const StatsStrip: React.FC<StatsStripProps> = ({
@@ -13,6 +14,7 @@ export const StatsStrip: React.FC<StatsStripProps> = ({
   interview,
   offer,
   rejected,
+  responseRate,
 }) => {
   const { t } = useTranslation();
 
@@ -20,7 +22,7 @@ export const StatsStrip: React.FC<StatsStripProps> = ({
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
+        gridTemplateColumns: "repeat(5, 1fr)",
         gap: "8px",
         marginBottom: "16px",
       }}
@@ -45,6 +47,11 @@ export const StatsStrip: React.FC<StatsStripProps> = ({
           label: t("dashboard.stats.rejected"),
           value: rejected,
           color: "var(--danger)",
+        },
+        {
+          label: t("dashboard.stats.responseRate"),
+          value: `${responseRate}%`,
+          color: "var(--accent)",
         },
       ].map(({ label, value, color }) => (
         <div

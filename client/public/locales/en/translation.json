@@ -37,6 +37,7 @@
   },
   "dashboard": {
     "title": "JobTracker",
+    "responseRate": "Response rate",
     "applicationsCount": "{{count}} application",
     "applicationsCount_plural": "{{count}} applications",
     "addApplication": "Add application",

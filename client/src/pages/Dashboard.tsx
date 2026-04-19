@@ -83,6 +83,14 @@ const Dashboard = () => {
     interview: applications.filter((a) => a.status === "interview").length,
     offer: applications.filter((a) => a.status === "offer").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
+    responseRate:
+      applications.length > 0
+        ? Math.round(
+            (applications.filter((a) => a.status !== "applied").length /
+              applications.length) *
+              100,
+          )
+        : 0,
   };
 
   return (
@@ -189,7 +197,7 @@ const Dashboard = () => {
           padding: isMobile ? "16px" : "28px 24px",
         }}
       >
-        {isMobile && <StatsStrip {...stats} />}
+        <StatsStrip {...stats} />
 
         <AddApplicationForm onAdd={handleAdd} isMobile={isMobile} />
 
