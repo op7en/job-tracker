@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config/env";
 
 interface AuthRequest extends Request {
-  userId?: string;
+  userId?: number;
 }
 
 export const authMiddleware = (
@@ -14,12 +15,10 @@ export const authMiddleware = (
   if (!token) return res.status(401).json({ message: "No token" });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as {
-      id: string;
-    };
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
     req.userId = decoded.id;
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
