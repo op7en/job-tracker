@@ -69,6 +69,8 @@
 
 ---
 
+## Структура проекта
+
 ```
 job-tracker/
 ├── client/
@@ -128,4 +130,3 @@ FRONTEND_URL=http://localhost:5173
 [Read in English](README.md)
 
 
-## Структура проекта
