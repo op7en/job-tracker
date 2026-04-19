@@ -34,6 +34,15 @@ const createTables = async () => {
       notes TEXT
     )
   `);
+  await pool.query(`
+  CREATE TABLE IF NOT EXISTS activity_logs (
+    id SERIAL PRIMARY KEY,
+    application_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    payload JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+  )
+`);
   console.log("Tables ready");
 };
 

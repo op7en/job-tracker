@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Application } from "../../hooks/useApplications";
+import { ActivityModal } from "./ActivityModal"; // <-- новый импорт
 
 const COLUMNS = ["applied", "interview", "offer", "rejected"] as const;
 
@@ -19,8 +20,9 @@ const KanbanCard: React.FC<{
   onDragStart: (e: React.DragEvent, id: number) => void;
   onDragEnd: () => void;
   onDelete: (id: number) => Promise<void>;
+  onClick: (app: Application) => void; // <-- новый пропс
   t: (key: string) => string;
-}> = ({ app, draggingId, onDragStart, onDragEnd, onDelete, t }) => {
+}> = ({ app, draggingId, onDragStart, onDragEnd, onDelete, onClick, t }) => {
   const staleDays = getStaleDays(app.date_applied, app.status);
 
   return (
@@ -28,12 +30,13 @@ const KanbanCard: React.FC<{
       draggable
       onDragStart={(e) => onDragStart(e, app.id)}
       onDragEnd={onDragEnd}
+      onClick={() => onClick(app)} // <-- обработчик клика
       style={{
         background: "var(--bg-elevated)",
         border: `1px solid ${staleDays ? "var(--warning, #f59e0b)" : "var(--border)"}`,
         borderRadius: "8px",
         padding: "10px 12px",
-        cursor: "grab",
+        cursor: "pointer", // <-- изменено с "grab"
         opacity: draggingId === app.id ? 0.4 : 1,
         transition: "opacity 0.15s",
       }}
@@ -102,7 +105,10 @@ const KanbanCard: React.FC<{
           {app.date_applied.slice(0, 10)}
         </span>
         <button
-          onClick={() => onDelete(app.id)}
+          onClick={(e) => {
+            e.stopPropagation(); // <-- предотвращаем всплытие клика на карточку
+            onDelete(app.id);
+          }}
           style={{
             background: "transparent",
             border: "none",
@@ -154,6 +160,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const { t } = useTranslation();
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null); // <-- новый стейт для модалки
   const isMobile = window.innerWidth < 1024;
 
   const columnColors: Record<string, string> = {
@@ -193,14 +200,135 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   // Мобильный вид: горизонтальный скролл
   if (isMobile) {
     return (
+      <>
+        <div
+          style={{
+            display: "flex",
+            overflowX: "auto",
+            gap: "12px",
+            paddingBottom: "12px",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {COLUMNS.map((status) => {
+            const cards = applications.filter((a) => a.status === status);
+            const isOver = overColumn === status;
+
+            return (
+              <div
+                key={status}
+                onDragOver={(e) => handleDragOver(e, status)}
+                onDrop={(e) => handleDrop(e, status)}
+                onDragLeave={() => setOverColumn(null)}
+                style={{
+                  minWidth: "85vw",
+                  scrollSnapAlign: "start",
+                  flexShrink: 0,
+                  background: isOver ? "var(--bg-elevated)" : "var(--bg-surface)",
+                  border: `1px solid ${isOver ? columnColors[status] : "var(--border)"}`,
+                  borderRadius: "10px",
+                  padding: "12px",
+                  minHeight: "200px",
+                  transition: "all 0.15s",
+                }}
+              >
+                {/* Заголовок колонки */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                  >
+                    <div
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        background: columnColors[status],
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {t(`dashboard.${status}`)}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--text-secondary)",
+                      background: "var(--bg-elevated)",
+                      padding: "2px 7px",
+                      borderRadius: "10px",
+                    }}
+                  >
+                    {cards.length}
+                  </span>
+                </div>
+
+                {/* Карточки */}
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+                >
+                  {cards.length === 0 ? (
+                    <div
+                      style={{
+                        textAlign: "center",
+                        padding: "24px 0",
+                        fontSize: "12px",
+                        color: "var(--text-secondary)",
+                        borderRadius: "8px",
+                        border: "1px dashed var(--border)",
+                      }}
+                    >
+                      —
+                    </div>
+                  ) : (
+                    cards.map((app) => (
+                      <KanbanCard
+                        key={app.id}
+                        app={app}
+                        draggingId={draggingId}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        onDelete={onDelete}
+                        onClick={setSelectedApp} // <-- передаём сеттер
+                        t={t}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Модальное окно активности */}
+        <ActivityModal app={selectedApp} onClose={() => setSelectedApp(null)} />
+      </>
+    );
+  }
+
+  // Десктопный вид: сетка 4 колонки
+  return (
+    <>
       <div
         style={{
-          display: "flex",
-          overflowX: "auto",
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
           gap: "12px",
-          paddingBottom: "12px",
-          scrollSnapType: "x mandatory",
-          WebkitOverflowScrolling: "touch",
+          alignItems: "start",
         }}
       >
         {COLUMNS.map((status) => {
@@ -214,9 +342,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               onDrop={(e) => handleDrop(e, status)}
               onDragLeave={() => setOverColumn(null)}
               style={{
-                minWidth: "85vw",
-                scrollSnapAlign: "start",
-                flexShrink: 0,
                 background: isOver ? "var(--bg-elevated)" : "var(--bg-surface)",
                 border: `1px solid ${isOver ? columnColors[status] : "var(--border)"}`,
                 borderRadius: "10px",
@@ -225,7 +350,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 transition: "all 0.15s",
               }}
             >
-              {/* Заголовок колонки */}
               <div
                 style={{
                   display: "flex",
@@ -269,7 +393,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 </span>
               </div>
 
-              {/* Карточки */}
               <div
                 style={{ display: "flex", flexDirection: "column", gap: "8px" }}
               >
@@ -295,6 +418,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
                       onDelete={onDelete}
+                      onClick={setSelectedApp} // <-- передаём сеттер
                       t={t}
                     />
                   ))
@@ -304,114 +428,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           );
         })}
       </div>
-    );
-  }
 
-  // Десктопный вид: сетка 4 колонки
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, 1fr)",
-        gap: "12px",
-        alignItems: "start",
-      }}
-    >
-      {COLUMNS.map((status) => {
-        const cards = applications.filter((a) => a.status === status);
-        const isOver = overColumn === status;
-
-        return (
-          <div
-            key={status}
-            onDragOver={(e) => handleDragOver(e, status)}
-            onDrop={(e) => handleDrop(e, status)}
-            onDragLeave={() => setOverColumn(null)}
-            style={{
-              background: isOver ? "var(--bg-elevated)" : "var(--bg-surface)",
-              border: `1px solid ${isOver ? columnColors[status] : "var(--border)"}`,
-              borderRadius: "10px",
-              padding: "12px",
-              minHeight: "200px",
-              transition: "all 0.15s",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "12px",
-              }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <div
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: columnColors[status],
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-primary)",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {t(`dashboard.${status}`)}
-                </span>
-              </div>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-secondary)",
-                  background: "var(--bg-elevated)",
-                  padding: "2px 7px",
-                  borderRadius: "10px",
-                }}
-              >
-                {cards.length}
-              </span>
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
-              {cards.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "24px 0",
-                    fontSize: "12px",
-                    color: "var(--text-secondary)",
-                    borderRadius: "8px",
-                    border: "1px dashed var(--border)",
-                  }}
-                >
-                  —
-                </div>
-              ) : (
-                cards.map((app) => (
-                  <KanbanCard
-                    key={app.id}
-                    app={app}
-                    draggingId={draggingId}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    onDelete={onDelete}
-                    t={t}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+      {/* Модальное окно активности */}
+      <ActivityModal app={selectedApp} onClose={() => setSelectedApp(null)} />
+    </>
   );
 };

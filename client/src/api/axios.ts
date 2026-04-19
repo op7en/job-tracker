@@ -12,4 +12,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
+export const fetchActivityLog = (applicationId: number) =>
+  api.get(`/applications/${applicationId}/activity`);
 export default api;

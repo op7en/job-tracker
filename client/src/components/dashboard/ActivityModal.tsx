@@ -1,0 +1,200 @@
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { fetchActivityLog } from "../../api/axios";
+import type { Application } from "../../hooks/useApplications";
+
+interface ActivityLog {
+  id: number;
+  type: string;
+  payload: Record<string, any>;
+  created_at: string;
+}
+
+interface ActivityModalProps {
+  app: Application | null;
+  onClose: () => void;
+}
+
+const EVENT_ICONS: Record<string, string> = {
+  created: "✦",
+  status_changed: "◈",
+  updated: "✎",
+};
+
+const groupByDate = (logs: ActivityLog[]) => {
+  const groups: Record<string, ActivityLog[]> = {};
+  logs.forEach((log) => {
+    const date = new Date(log.created_at);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    let label: string;
+    if (date.toDateString() === today.toDateString()) label = "Today";
+    else if (date.toDateString() === yesterday.toDateString()) label = "Yesterday";
+    else label = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(log);
+  });
+  return groups;
+};
+
+const formatEvent = (log: ActivityLog): string => {
+  if (log.type === "created") return `Applied to ${log.payload?.company} — ${log.payload?.position}`;
+  if (log.type === "status_changed") return `Status → ${log.payload?.status}`;
+  if (log.type === "updated") {
+    const fields = Object.keys(log.payload || {}).join(", ");
+    return `Updated: ${fields}`;
+  }
+  return log.type;
+};
+
+export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) => {
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!app) return;
+    setLoading(true);
+    fetchActivityLog(app.id)
+      .then((res) => setLogs(res.data))
+      .catch(() => setLogs([]))
+      .finally(() => setLoading(false));
+  }, [app]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  if (!app) return null;
+
+  const grouped = groupByDate(logs);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.5)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          width: "100%",
+          maxWidth: "480px",
+          maxHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: "16px 20px",
+          borderBottom: "1px solid var(--border)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+        }}>
+          <div>
+            <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}>
+              {app.company}
+            </div>
+            <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+              {app.position}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-secondary)",
+              fontSize: "18px",
+              lineHeight: 1,
+              padding: "0 4px",
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Timeline */}
+        <div style={{ overflowY: "auto", padding: "16px 20px" }}>
+          {loading ? (
+            <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "13px", padding: "24px 0" }}>
+              Loading...
+            </div>
+          ) : logs.length === 0 ? (
+            <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "13px", padding: "24px 0" }}>
+              No activity yet
+            </div>
+          ) : (
+            Object.entries(grouped).map(([date, dateLogs]) => (
+              <div key={date} style={{ marginBottom: "20px" }}>
+                <div style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  marginBottom: "10px",
+                }}>
+                  {date}
+                </div>
+                {dateLogs.map((log) => (
+                  <div key={log.id} style={{
+                    display: "flex",
+                    gap: "12px",
+                    marginBottom: "10px",
+                    alignItems: "flex-start",
+                  }}>
+                    <div style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--border)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      flexShrink: 0,
+                      color: "var(--accent)",
+                    }}>
+                      {EVENT_ICONS[log.type] || "•"}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>
+                        {formatEvent(log)}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                        {new Date(log.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
