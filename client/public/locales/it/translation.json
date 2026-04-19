@@ -36,7 +36,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "applicationsCount": "{{count}} candidatura",
     "applicationsCount_plural": "{{count}} candidature",
     "addApplication": "Aggiungi candidatura",
     "adding": "Aggiunta...",

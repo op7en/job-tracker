@@ -135,11 +135,6 @@ const Dashboard = () => {
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {!isMobile && (
-            <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-              {t("dashboard.applicationsCount", { count: applications.length })}
-            </span>
-          )}
           <LanguageSwitcher />
           <ViewToggle view={view} onViewChange={setView} />
           <LogoutButton />

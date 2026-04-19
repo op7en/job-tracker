@@ -36,7 +36,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "applicationsCount": "{{count}} заявка",
     "applicationsCount_plural": "{{count}} заявок",
     "addApplication": "Добавить заявку",
     "adding": "Добавление...",
