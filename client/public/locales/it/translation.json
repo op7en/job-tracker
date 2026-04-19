@@ -83,4 +83,13 @@
     "acceptConfirm": "Usando il servizio confermi di aver letto e accettato questi termini.",
     "accept": "Accetto"
   }
+    "activity": {
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "noActivity": "Nessuna attività",
+    "loading": "Caricamento...",
+    "created": "Candidatura a {{company}} — {{position}}",
+    "statusChanged": "Stato → {{status}}",
+    "updated": "Aggiornato: {{fields}}"
+  }
 }

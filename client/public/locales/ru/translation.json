@@ -83,4 +83,13 @@
     "acceptConfirm": "Используя сервис, вы подтверждаете, что ознакомлены и согласны с данными условиями.",
     "accept": "Принимаю"
   }
+   "activity": {
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "noActivity": "Активности пока нет",
+    "loading": "Загрузка...",
+    "created": "Отклик в {{company}} — {{position}}",
+    "statusChanged": "Статус → {{status}}",
+    "updated": "Обновлено: {{fields}}"
+  }
 }

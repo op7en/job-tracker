@@ -83,4 +83,13 @@
     "acceptConfirm": "By using the service, you confirm that you have read and agree to these terms.",
     "accept": "Accept"
   }
+    "activity": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "noActivity": "No activity yet",
+    "loading": "Loading...",
+    "created": "Applied to {{company}} — {{position}}",
+    "statusChanged": "Status → {{status}}",
+    "updated": "Updated: {{fields}}"
+  }
 }

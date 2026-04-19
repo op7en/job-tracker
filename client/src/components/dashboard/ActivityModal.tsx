@@ -21,7 +21,7 @@ const EVENT_ICONS: Record<string, string> = {
   updated: "✎",
 };
 
-const groupByDate = (logs: ActivityLog[]) => {
+const groupByDate = (logs: ActivityLog[], t: (key: string) => string) => {
   const groups: Record<string, ActivityLog[]> = {};
   logs.forEach((log) => {
     const date = new Date(log.created_at);
@@ -30,9 +30,13 @@ const groupByDate = (logs: ActivityLog[]) => {
     yesterday.setDate(today.getDate() - 1);
 
     let label: string;
-    if (date.toDateString() === today.toDateString()) label = "Today";
-    else if (date.toDateString() === yesterday.toDateString()) label = "Yesterday";
-    else label = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    if (date.toDateString() === today.toDateString()) {
+      label = t("activity.today");
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      label = t("activity.yesterday");
+    } else {
+      label = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    }
 
     if (!groups[label]) groups[label] = [];
     groups[label].push(log);
@@ -40,17 +44,25 @@ const groupByDate = (logs: ActivityLog[]) => {
   return groups;
 };
 
-const formatEvent = (log: ActivityLog): string => {
-  if (log.type === "created") return `Applied to ${log.payload?.company} — ${log.payload?.position}`;
-  if (log.type === "status_changed") return `Status → ${log.payload?.status}`;
+const formatEvent = (log: ActivityLog, t: (key: string, opts?: any) => string): string => {
+  if (log.type === "created") {
+    return t("activity.created", {
+      company: log.payload?.company,
+      position: log.payload?.position,
+    });
+  }
+  if (log.type === "status_changed") {
+    return t("activity.statusChanged", { status: log.payload?.status });
+  }
   if (log.type === "updated") {
     const fields = Object.keys(log.payload || {}).join(", ");
-    return `Updated: ${fields}`;
+    return t("activity.updated", { fields });
   }
   return log.type;
 };
 
 export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) => {
+  const { t } = useTranslation();
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -73,7 +85,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) =>
 
   if (!app) return null;
 
-  const grouped = groupByDate(logs);
+  const grouped = groupByDate(logs, t);
 
   return (
     <div
@@ -104,13 +116,15 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) =>
         }}
       >
         {/* Header */}
-        <div style={{
-          padding: "16px 20px",
-          borderBottom: "1px solid var(--border)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-        }}>
+        <div
+          style={{
+            padding: "16px 20px",
+            borderBottom: "1px solid var(--border)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
           <div>
             <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}>
               {app.company}
@@ -138,54 +152,78 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) =>
         {/* Timeline */}
         <div style={{ overflowY: "auto", padding: "16px 20px" }}>
           {loading ? (
-            <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "13px", padding: "24px 0" }}>
-              Loading...
+            <div
+              style={{
+                textAlign: "center",
+                color: "var(--text-secondary)",
+                fontSize: "13px",
+                padding: "24px 0",
+              }}
+            >
+              {t("activity.loading")}
             </div>
           ) : logs.length === 0 ? (
-            <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: "13px", padding: "24px 0" }}>
-              No activity yet
+            <div
+              style={{
+                textAlign: "center",
+                color: "var(--text-secondary)",
+                fontSize: "13px",
+                padding: "24px 0",
+              }}
+            >
+              {t("activity.noActivity")}
             </div>
           ) : (
             Object.entries(grouped).map(([date, dateLogs]) => (
               <div key={date} style={{ marginBottom: "20px" }}>
-                <div style={{
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color: "var(--text-secondary)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  marginBottom: "10px",
-                }}>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: "var(--text-secondary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: "10px",
+                  }}
+                >
                   {date}
                 </div>
                 {dateLogs.map((log) => (
-                  <div key={log.id} style={{
-                    display: "flex",
-                    gap: "12px",
-                    marginBottom: "10px",
-                    alignItems: "flex-start",
-                  }}>
-                    <div style={{
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "50%",
-                      background: "var(--bg-elevated)",
-                      border: "1px solid var(--border)",
+                  <div
+                    key={log.id}
+                    style={{
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "11px",
-                      flexShrink: 0,
-                      color: "var(--accent)",
-                    }}>
+                      gap: "12px",
+                      marginBottom: "10px",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--border)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "11px",
+                        flexShrink: 0,
+                        color: "var(--accent)",
+                      }}
+                    >
                       {EVENT_ICONS[log.type] || "•"}
                     </div>
                     <div>
                       <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>
-                        {formatEvent(log)}
+                        {formatEvent(log, t)}
                       </div>
                       <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
-                        {new Date(log.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(log.created_at).toLocaleTimeString("en-GB", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     </div>
                   </div>
