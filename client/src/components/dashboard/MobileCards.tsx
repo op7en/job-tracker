@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { StatusBadge } from "./StatusBadge";
 import { Spinner } from "./Spinner";
 import { SkeletonCard } from "./SkeletonCard";
-
+import { ActivityModal } from "./ActivityModal";
+import type { Application as AppType } from "../../hooks/useApplications";
 interface Application {
   id: number;
   company: string;
@@ -39,6 +40,8 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
   const [editPosition, setEditPosition] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<AppType | null>(null);
+
 
   const statusOptions = [
     { value: "applied", label: t("dashboard.applied") },
@@ -332,6 +335,26 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
                     </svg>
                   </button>
                   <button
+  onClick={() => setSelectedApp(app as AppType)}
+  style={{
+    background: "var(--bg-elevated)",
+    border: "1px solid var(--border)",
+    borderRadius: "6px",
+    padding: "5px 10px",
+    color: "var(--text-secondary)",
+    fontSize: "12px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  }}
+>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+</button>
+                  <button
                     onClick={() => onDelete(app.id)}
                     disabled={deletingId === app.id}
                     style={{
@@ -371,6 +394,7 @@ export const MobileCards: React.FC<MobileCardsProps> = ({
           </div>
         );
       })}
+      <ActivityModal app={selectedApp} onClose={() => setSelectedApp(null)} />
     </div>
   );
 };
