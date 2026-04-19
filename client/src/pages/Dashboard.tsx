@@ -9,7 +9,7 @@ import { StatsStrip } from "../components/dashboard/StatsStrip";
 import { AddApplicationForm } from "../components/dashboard/AddApplicationForm";
 import { DesktopTable } from "../components/dashboard/DesktopTable";
 import { MobileCards } from "../components/dashboard/MobileCards";
-
+import { KanbanBoard } from "../components/dashboard/KanbanBoard";
 interface Application {
   id: number;
   company: string;
@@ -93,6 +93,8 @@ const Dashboard = () => {
         : 0,
   };
 
+  const [view, setView] = useState<"table" | "board">("table");
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-app)" }}>
       {/* Header — без изменений */}
@@ -144,6 +146,34 @@ const Dashboard = () => {
             </span>
           )}
           <LanguageSwitcher />
+          <div
+            style={{
+              display: "flex",
+              border: "1px solid var(--border)",
+              borderRadius: "6px",
+              overflow: "hidden",
+            }}
+          >
+            {(["table", "board"] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setView(v)}
+                style={{
+                  background: view === v ? "var(--accent)" : "transparent",
+                  border: "none",
+                  padding: "5px 10px",
+                  fontSize: "12px",
+                  color: view === v ? "#fff" : "var(--text-secondary)",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                {v === "table"
+                  ? t("dashboard.viewTable")
+                  : t("dashboard.viewBoard")}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleLogout}
             style={{
@@ -201,8 +231,8 @@ const Dashboard = () => {
 
         <AddApplicationForm onAdd={handleAdd} isMobile={isMobile} />
 
-        {!isMobile ? (
-          <DesktopTable
+        {isMobile ? (
+          <MobileCards
             applications={applications}
             initialLoading={initialLoading}
             onUpdateStatus={handleUpdateStatus}
@@ -210,8 +240,14 @@ const Dashboard = () => {
             onUpdateApplication={handleUpdateApplication}
             deletingId={deletingId}
           />
+        ) : view === "board" ? (
+          <KanbanBoard
+            applications={applications}
+            onUpdateStatus={handleUpdateStatus}
+            onDelete={handleDelete}
+          />
         ) : (
-          <MobileCards
+          <DesktopTable
             applications={applications}
             initialLoading={initialLoading}
             onUpdateStatus={handleUpdateStatus}
