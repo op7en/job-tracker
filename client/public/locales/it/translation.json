@@ -36,8 +36,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "viewTable": "Tabella",
-    "viewBoard": "Bacheca",
     "applicationsCount": "{{count}} candidatura",
     "applicationsCount_plural": "{{count}} candidature",
     "addApplication": "Aggiungi candidatura",
