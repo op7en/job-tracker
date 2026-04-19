@@ -9,6 +9,7 @@ import { AddApplicationForm } from "../components/dashboard/AddApplicationForm";
 import { DesktopTable } from "../components/dashboard/DesktopTable";
 import { MobileCards } from "../components/dashboard/MobileCards";
 import { KanbanBoard } from "../components/dashboard/KanbanBoard";
+import { ViewToggle } from "../components/dashboard/ViewToggle";
 import LogoutButton from "../components/LogoutButton";
 interface Application {
   id: number;
@@ -140,34 +141,7 @@ const Dashboard = () => {
             </span>
           )}
           <LanguageSwitcher />
-          <div
-            style={{
-              display: "flex",
-              border: "1px solid var(--border)",
-              borderRadius: "6px",
-              overflow: "hidden",
-            }}
-          >
-            {(["table", "board"] as const).map((v) => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                style={{
-                  background: view === v ? "var(--accent)" : "transparent",
-                  border: "none",
-                  padding: "5px 10px",
-                  fontSize: "12px",
-                  color: view === v ? "#fff" : "var(--text-secondary)",
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
-              >
-                {v === "table"
-                  ? t("dashboard.viewTable")
-                  : t("dashboard.viewBoard")}
-              </button>
-            ))}
-          </div>
+          <ViewToggle view={view} onViewChange={setView} />
           <LogoutButton />
           <ThemeToggle />
         </div>
