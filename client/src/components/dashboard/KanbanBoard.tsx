@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Application } from "../../hooks/useApplications";
-import { StatusBadge } from "./StatusBadge";
+import type { Application } from "../../hooks/useApplications";
 
 const COLUMNS = ["applied", "interview", "offer", "rejected"] as const;
 
