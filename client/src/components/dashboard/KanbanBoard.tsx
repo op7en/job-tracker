@@ -4,6 +4,142 @@ import type { Application } from "../../hooks/useApplications";
 
 const COLUMNS = ["applied", "interview", "offer", "rejected"] as const;
 
+const getStaleDays = (dateApplied: string, status: string): number | null => {
+  if (status !== "applied") return null;
+  const days = Math.floor(
+    (Date.now() - new Date(dateApplied).getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return days >= 7 ? days : null;
+};
+
+// Вынесенная карточка
+const KanbanCard: React.FC<{
+  app: Application;
+  draggingId: number | null;
+  onDragStart: (e: React.DragEvent, id: number) => void;
+  onDragEnd: () => void;
+  onDelete: (id: number) => Promise<void>;
+  t: (key: string) => string;
+}> = ({ app, draggingId, onDragStart, onDragEnd, onDelete, t }) => {
+  const staleDays = getStaleDays(app.date_applied, app.status);
+
+  return (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, app.id)}
+      onDragEnd={onDragEnd}
+      style={{
+        background: "var(--bg-elevated)",
+        border: `1px solid ${staleDays ? "var(--warning, #f59e0b)" : "var(--border)"}`,
+        borderRadius: "8px",
+        padding: "10px 12px",
+        cursor: "grab",
+        opacity: draggingId === app.id ? 0.4 : 1,
+        transition: "opacity 0.15s",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "13px",
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          marginBottom: "2px",
+        }}
+      >
+        {app.company}
+      </div>
+      <div
+        style={{
+          fontSize: "12px",
+          color: "var(--text-secondary)",
+          marginBottom: "8px",
+        }}
+      >
+        {app.position}
+      </div>
+      {app.notes && (
+        <div
+          style={{
+            fontSize: "11px",
+            color: "var(--text-secondary)",
+            background: "var(--bg-surface)",
+            borderRadius: "5px",
+            padding: "5px 8px",
+            marginBottom: "8px",
+            lineHeight: "1.4",
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {app.notes}
+        </div>
+      )}
+      {staleDays && (
+        <div
+          style={{
+            fontSize: "10px",
+            color: "#f59e0b",
+            background: "rgba(245, 158, 11, 0.1)",
+            borderRadius: "4px",
+            padding: "3px 7px",
+            marginBottom: "8px",
+            display: "inline-block",
+          }}
+        >
+          ⏱ {t("dashboard.stale")} {staleDays}d
+        </div>
+      )}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <span style={{ fontSize: "10px", color: "var(--text-secondary)" }}>
+          {app.date_applied.slice(0, 10)}
+        </span>
+        <button
+          onClick={() => onDelete(app.id)}
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--text-secondary)",
+            padding: "2px",
+            display: "flex",
+            alignItems: "center",
+            borderRadius: "4px",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color =
+              "var(--danger)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color =
+              "var(--text-secondary)";
+          }}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 interface KanbanBoardProps {
   applications: Application[];
   onUpdateStatus: (id: number, status: string) => Promise<void>;
@@ -152,110 +288,15 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   </div>
                 ) : (
                   cards.map((app) => (
-                    <div
+                    <KanbanCard
                       key={app.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, app.id)}
+                      app={app}
+                      draggingId={draggingId}
+                      onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
-                      style={{
-                        background: "var(--bg-elevated)",
-                        border: "1px solid var(--border)",
-                        borderRadius: "8px",
-                        padding: "10px 12px",
-                        cursor: "grab",
-                        opacity: draggingId === app.id ? 0.4 : 1,
-                        transition: "opacity 0.15s",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "var(--text-primary)",
-                          marginBottom: "2px",
-                        }}
-                      >
-                        {app.company}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "var(--text-secondary)",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        {app.position}
-                      </div>
-                      {app.notes && (
-                        <div
-                          style={{
-                            fontSize: "11px",
-                            color: "var(--text-secondary)",
-                            background: "var(--bg-surface)",
-                            borderRadius: "5px",
-                            padding: "5px 8px",
-                            marginBottom: "8px",
-                            lineHeight: "1.4",
-                            overflow: "hidden",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                          }}
-                        >
-                          {app.notes}
-                        </div>
-                      )}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: "10px",
-                            color: "var(--text-secondary)",
-                          }}
-                        >
-                          {app.date_applied.slice(0, 10)}
-                        </span>
-                        <button
-                          onClick={() => onDelete(app.id)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "var(--text-secondary)",
-                            padding: "2px",
-                            display: "flex",
-                            alignItems: "center",
-                            borderRadius: "4px",
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color =
-                              "var(--danger)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color =
-                              "var(--text-secondary)";
-                          }}
-                        >
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6l-1 14H6L5 6" />
-                            <path d="M10 11v6M14 11v6" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                      onDelete={onDelete}
+                      t={t}
+                    />
                   ))
                 )}
               </div>
@@ -356,110 +397,15 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 </div>
               ) : (
                 cards.map((app) => (
-                  <div
+                  <KanbanCard
                     key={app.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, app.id)}
+                    app={app}
+                    draggingId={draggingId}
+                    onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
-                    style={{
-                      background: "var(--bg-elevated)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "8px",
-                      padding: "10px 12px",
-                      cursor: "grab",
-                      opacity: draggingId === app.id ? 0.4 : 1,
-                      transition: "opacity 0.15s",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "var(--text-primary)",
-                        marginBottom: "2px",
-                      }}
-                    >
-                      {app.company}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--text-secondary)",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      {app.position}
-                    </div>
-                    {app.notes && (
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--text-secondary)",
-                          background: "var(--bg-surface)",
-                          borderRadius: "5px",
-                          padding: "5px 8px",
-                          marginBottom: "8px",
-                          lineHeight: "1.4",
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {app.notes}
-                      </div>
-                    )}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "10px",
-                          color: "var(--text-secondary)",
-                        }}
-                      >
-                        {app.date_applied.slice(0, 10)}
-                      </span>
-                      <button
-                        onClick={() => onDelete(app.id)}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          cursor: "pointer",
-                          color: "var(--text-secondary)",
-                          padding: "2px",
-                          display: "flex",
-                          alignItems: "center",
-                          borderRadius: "4px",
-                        }}
-                        onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.color =
-                            "var(--danger)";
-                        }}
-                        onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.color =
-                            "var(--text-secondary)";
-                        }}
-                      >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6l-1 14H6L5 6" />
-                          <path d="M10 11v6M14 11v6" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+                    onDelete={onDelete}
+                    t={t}
+                  />
                 ))
               )}
             </div>

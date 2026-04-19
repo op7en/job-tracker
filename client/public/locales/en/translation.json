@@ -44,6 +44,7 @@
     "notes": "Notes (optional)",
     "status": "Status",
     "applied": "Applied",
+    "stale": "No response",
     "interview": "Interview",
     "rejected": "Rejected",
     "offer": "Offer",

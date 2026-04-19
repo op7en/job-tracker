@@ -44,6 +44,7 @@
     "notes": "Note (opzionale)",
     "status": "Stato",
     "applied": "Candidato",
+    "stale": "Nessuna risposta",
     "interview": "Colloquio",
     "rejected": "Rifiutato",
     "offer": "Offerta",
