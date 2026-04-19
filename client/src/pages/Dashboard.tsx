@@ -152,8 +152,13 @@ const Dashboard = () => {
         <StatsStrip {...stats} />
 
         <AddApplicationForm onAdd={handleAdd} isMobile={isMobile} />
-
-        {isMobile ? (
+        {view === "board" ? (
+          <KanbanBoard
+            applications={applications}
+            onUpdateStatus={handleUpdateStatus}
+            onDelete={handleDelete}
+          />
+        ) : isMobile ? (
           <MobileCards
             applications={applications}
             initialLoading={initialLoading}
@@ -161,12 +166,6 @@ const Dashboard = () => {
             onDelete={handleDelete}
             onUpdateApplication={handleUpdateApplication}
             deletingId={deletingId}
-          />
-        ) : view === "board" ? (
-          <KanbanBoard
-            applications={applications}
-            onUpdateStatus={handleUpdateStatus}
-            onDelete={handleDelete}
           />
         ) : (
           <DesktopTable
