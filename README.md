@@ -69,10 +69,12 @@ npm run dev
 
 **Environment variables**
 
+```
 PORT=3000
 JWT_SECRET=your_secret
 DATABASE_URL=your_postgresql_url
 FRONTEND_URL=http://localhost:5173
+```
 
 ---
 
