@@ -37,7 +37,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "responseRate": "Отклик",
     "applicationsCount": "{{count}} заявка",
     "applicationsCount_plural": "{{count}} заявок",
     "addApplication": "Добавить заявку",
@@ -65,7 +64,8 @@
       "total": "Всего",
       "interview": "Собеседования",
       "offers": "Офферы",
-      "rejected": "Отказы"
+      "rejected": "Отказы",
+      "responseRate": "Отклик"
     }
   },
   "privacy": {

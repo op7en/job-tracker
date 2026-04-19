@@ -37,7 +37,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "responseRate": "Response rate",
     "applicationsCount": "{{count}} application",
     "applicationsCount_plural": "{{count}} applications",
     "addApplication": "Add application",
@@ -65,7 +64,8 @@
       "total": "Total",
       "interview": "Interview",
       "offers": "Offers",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "responseRate": "Response rate"
     }
   },
   "privacy": {

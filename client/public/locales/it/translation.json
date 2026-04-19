@@ -37,7 +37,6 @@
   },
   "dashboard": {
     "title": "JobTracker",
-    "responseRate": "Tasso risposta",
     "applicationsCount": "{{count}} candidatura",
     "applicationsCount_plural": "{{count}} candidature",
     "addApplication": "Aggiungi candidatura",
@@ -65,7 +64,8 @@
       "total": "Totale",
       "interview": "Colloqui",
       "offers": "Offerte",
-      "rejected": "Rifiutati"
+      "rejected": "Rifiutati",
+      "responseRate": "Tasso risposta"
     }
   },
   "privacy": {
