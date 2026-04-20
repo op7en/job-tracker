@@ -1,5 +1,5 @@
 # Job Tracker
-
+![Demo](./client/public/demo.gif)
 A job application tracker that behaves like a lightweight ATS.
 
 Instead of just storing applications, it helps you understand your hiring pipeline, track progress, and take action when things stall.
@@ -44,7 +44,17 @@ Quick overview of total applications, interviews, offers, rejections, and respon
 
 ## Screenshots
 
-*(Add screenshots here — Kanban, Table, Activity view, Mobile)*
+## Kanban
+![Kanban](./client/public/kanban.png)
+
+## Mobile
+![Mobile](./client/public/kanban.png)
+
+## Table
+![Table](./client/public/table.png)
+
+## History
+![History](./client/public/history.gif)
 
 ---
 
