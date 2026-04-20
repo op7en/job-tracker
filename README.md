@@ -48,7 +48,7 @@ Quick overview of total applications, interviews, offers, rejections, and respon
 ![Kanban](./client/public/kanban.png)
 
 ## Mobile
-![Mobile](./client/public/kanban.png)
+![Mobile](./client/public/mobile.png)
 
 ## Table
 ![Table](./client/public/table.png)
