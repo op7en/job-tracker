@@ -48,7 +48,7 @@
 ![Kanban](./client/public/kanban.png)
 
 ## Мобильный телефон
-![Mobile](./client/public/kanban.png)
+![Mobile](./client/public/mobile.png)
 
 ## Таблица
 ![Table](./client/public/table.png)
