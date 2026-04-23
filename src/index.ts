@@ -4,7 +4,13 @@ import applicationRoutes from "./routes/applications";
 import cors from "cors";
 import pool from "./db";
 import helmet from "helmet";
+
 const app = express();
+
+// Railway работает за прокси — доверяем одному слою прокси,
+// чтобы req.ip содержал реальный IP клиента (для rate-limit)
+app.set("trust proxy", 1);
+
 app.use(helmet());
 app.use(express.json());
 app.use(
@@ -14,6 +20,7 @@ app.use(
 );
 app.use("/auth", authRoutes);
 app.use("/applications", applicationRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 const createTables = async () => {
