@@ -69,6 +69,7 @@ I use this app to track my own job search:
 
 ## Tech Stack
 
+<<<<<<< HEAD
 | Layer | Technologies |
 |-------|-------------|
 | Frontend | React, TypeScript, Vite, React Router, react-i18next |
@@ -76,6 +77,13 @@ I use this app to track my own job search:
 | Auth | JWT, bcrypt |
 | Architecture | Controllers / Services / Repositories |
 | Deploy | Vercel (frontend) · Railway (backend + database) |
+=======
+| Layer    | Technologies                                                         |
+| -------- | -------------------------------------------------------------------- |
+| Frontend | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
+| Backend  | Node.js, Express, TypeScript, PostgreSQL, JWT, bcrypt                |
+| Deploy   | Vercel (frontend) · Railway (backend + database)                     |
+>>>>>>> eaf8733 (add: gifs and screens)
 
 ---
 
@@ -99,11 +107,15 @@ job-tracker/
 └── middleware/
 ```
 
+<<<<<<< HEAD
 ---
 
+=======
+>>>>>>> eaf8733 (add: gifs and screens)
 ## Getting Started
 
 **Backend**
+
 ```bash
 cd job-tracker
 npm install
@@ -111,6 +123,7 @@ npm run dev
 ```
 
 **Frontend**
+
 ```bash
 cd client
 npm install
@@ -122,8 +135,11 @@ npm run dev
 PORT=3000
 JWT_SECRET=your_secret
 DATABASE_URL=your_postgresql_url
+<<<<<<< HEAD
 FRONTEND_URL=http://localhost:5173
 ```
+=======
+>>>>>>> eaf8733 (add: gifs and screens)
 
 ---
 

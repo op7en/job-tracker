@@ -69,6 +69,7 @@
 
 ## Стек
 
+<<<<<<< HEAD
 | Слой | Технологии |
 |------|------------|
 | Frontend | React, TypeScript, Vite, React Router, react-i18next |
@@ -76,6 +77,13 @@
 | Auth | JWT, bcrypt |
 | Архитектура | Controllers / Services / Repositories |
 | Деплой | Vercel (frontend) · Railway (backend + база данных) |
+=======
+| Слой     | Технологии                                                           |
+| -------- | -------------------------------------------------------------------- |
+| Frontend | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
+| Backend  | Node.js, Express, TypeScript, PostgreSQL, JWT, bcrypt                |
+| Деплой   | Vercel (frontend) · Railway (backend + база данных)                  |
+>>>>>>> eaf8733 (add: gifs and screens)
 
 ---
 
@@ -104,6 +112,7 @@ job-tracker/
 ## Запуск локально
 
 **Backend**
+
 ```bash
 cd job-tracker
 npm install
@@ -111,6 +120,7 @@ npm run dev
 ```
 
 **Frontend**
+
 ```bash
 cd client
 npm install
@@ -138,5 +148,8 @@ FRONTEND_URL=http://localhost:5173
 > Итальянский язык добавлен в знак уважения к тёте, которая живёт в Италии с 2000 года
   
 [Read in English](README.md)
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> eaf8733 (add: gifs and screens)
