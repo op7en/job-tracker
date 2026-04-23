@@ -12,7 +12,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      // не редиректим, если уже на /login или /register, чтобы не зациклить
+      const path = window.location.pathname;
+      if (path !== "/" && path !== "/register") {
+        window.location.href = "/";
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export const fetchActivityLog = (applicationId: number) =>
   api.get(`/applications/${applicationId}/activity`);
+
 export default api;
