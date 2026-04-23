@@ -1,18 +1,25 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import * as authController from "../controllers/authController";
+import { validate } from "../middleware/validate";
+import { RegisterSchema, LoginSchema } from "../schemas/authSchema";
 
 const router = Router();
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 минут
-  max: 10, // 10 попыток с одного IP
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   message: { error: "Too many attempts. Try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-router.post("/register", authLimiter, authController.register);
-router.post("/login", authLimiter, authController.login);
+router.post(
+  "/register",
+  authLimiter,
+  validate(RegisterSchema),
+  authController.register,
+);
+router.post("/login", authLimiter, validate(LoginSchema), authController.login);
 
 export default router;
