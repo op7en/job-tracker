@@ -35,16 +35,25 @@ const createTables = async () => {
     )
   `);
   await pool.query(`
-  CREATE TABLE IF NOT EXISTS activity_logs (
-    id SERIAL PRIMARY KEY,
-    application_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL,
-    payload JSONB,
-    created_at TIMESTAMP DEFAULT NOW()
-  )
-`);
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id SERIAL PRIMARY KEY,
+      application_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+      type VARCHAR(50) NOT NULL,
+      payload JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
   console.log("Tables ready");
 };
 
-createTables();
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+const startServer = async () => {
+  try {
+    await createTables();
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+  } catch (err) {
+    console.error("Failed to initialize database:", err);
+    process.exit(1);
+  }
+};
+
+startServer();
