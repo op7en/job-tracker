@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { Application } from "../../hooks/useApplications";
 import { ActivityModal } from "./ActivityModal"; // <-- новый импорт
@@ -161,7 +161,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null); // <-- новый стейт для модалки
-  const isMobile = window.innerWidth < 1024;
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const columnColors: Record<string, string> = {
     applied: "var(--accent)",
@@ -225,7 +232,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   minWidth: "85vw",
                   scrollSnapAlign: "start",
                   flexShrink: 0,
-                  background: isOver ? "var(--bg-elevated)" : "var(--bg-surface)",
+                  background: isOver
+                    ? "var(--bg-elevated)"
+                    : "var(--bg-surface)",
                   border: `1px solid ${isOver ? columnColors[status] : "var(--border)"}`,
                   borderRadius: "10px",
                   padding: "12px",
@@ -243,7 +252,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   }}
                 >
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
                   >
                     <div
                       style={{
@@ -279,7 +292,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
                 {/* Карточки */}
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: "8px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
                 >
                   {cards.length === 0 ? (
                     <div
