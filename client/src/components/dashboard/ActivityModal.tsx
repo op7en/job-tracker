@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { fetchActivityLog } from "../../api/axios";
 import type { Application } from "../../hooks/useApplications";
 
+interface CreatedPayload {
+  company: string;
+  position: string;
+}
+
+interface StatusChangedPayload {
+  status: string;
+}
+
+type UpdatedPayload = Record<string, unknown>;
+
+type ActivityLogType = "created" | "status_changed" | "updated";
+
 interface ActivityLog {
   id: number;
-  type: string;
-  payload: Record<string, any>;
+  type: ActivityLogType;
+  payload: CreatedPayload | StatusChangedPayload | UpdatedPayload;
   created_at: string;
 }
 
@@ -21,7 +35,7 @@ const EVENT_ICONS: Record<string, string> = {
   updated: "✎",
 };
 
-const groupByDate = (logs: ActivityLog[], t: (key: string) => string) => {
+const groupByDate = (logs: ActivityLog[], t: TFunction) => {
   const groups: Record<string, ActivityLog[]> = {};
   logs.forEach((log) => {
     const date = new Date(log.created_at);
@@ -35,7 +49,11 @@ const groupByDate = (logs: ActivityLog[], t: (key: string) => string) => {
     } else if (date.toDateString() === yesterday.toDateString()) {
       label = t("activity.yesterday");
     } else {
-      label = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      label = date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
     }
 
     if (!groups[label]) groups[label] = [];
@@ -44,35 +62,61 @@ const groupByDate = (logs: ActivityLog[], t: (key: string) => string) => {
   return groups;
 };
 
-const formatEvent = (log: ActivityLog, t: (key: string, opts?: any) => string): string => {
+const formatEvent = (log: ActivityLog, t: TFunction): string => {
   if (log.type === "created") {
+    const p = log.payload as CreatedPayload;
     return t("activity.created", {
-      company: log.payload?.company,
-      position: log.payload?.position,
+      company: p.company,
+      position: p.position,
     });
   }
   if (log.type === "status_changed") {
-    return t("activity.statusChanged", { status: log.payload?.status });
+    const p = log.payload as StatusChangedPayload;
+    const translatedStatus = p.status
+      ? t(`dashboard.${p.status}`, p.status)
+      : "";
+    return t("activity.statusChanged", { status: translatedStatus });
   }
   if (log.type === "updated") {
-    const fields = Object.keys(log.payload || {}).join(", ");
+    const p = log.payload as UpdatedPayload;
+    const fields = Object.keys(p || {})
+      .map((key) => t(`dashboard.${key}`, key))
+      .join(", ");
     return t("activity.updated", { fields });
   }
   return log.type;
 };
 
-export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) => {
+export const ActivityModal: React.FC<ActivityModalProps> = ({
+  app,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!app) return;
+
+    // флаг для защиты от race condition:
+    // если юзер быстро переключит модалку — старый запрос не перетрёт новые данные
+    let cancelled = false;
+
     setLoading(true);
     fetchActivityLog(app.id)
-      .then((res) => setLogs(res.data))
-      .catch(() => setLogs([]))
-      .finally(() => setLoading(false));
+      .then((res) => {
+        if (!cancelled) setLogs(res.data);
+      })
+      .catch(() => {
+        if (!cancelled) setLogs([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [app]);
 
   useEffect(() => {
@@ -126,10 +170,22 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) =>
           }}
         >
           <div>
-            <div style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}>
+            <div
+              style={{
+                fontSize: "15px",
+                fontWeight: 600,
+                color: "var(--text-primary)",
+              }}
+            >
               {app.company}
             </div>
-            <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "2px" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--text-secondary)",
+                marginTop: "2px",
+              }}
+            >
               {app.position}
             </div>
           </div>
@@ -216,10 +272,21 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ app, onClose }) =>
                       {EVENT_ICONS[log.type] || "•"}
                     </div>
                     <div>
-                      <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          color: "var(--text-primary)",
+                        }}
+                      >
                         {formatEvent(log, t)}
                       </div>
-                      <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
+                      <div
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--text-secondary)",
+                          marginTop: "2px",
+                        }}
+                      >
                         {new Date(log.created_at).toLocaleTimeString("en-GB", {
                           hour: "2-digit",
                           minute: "2-digit",
