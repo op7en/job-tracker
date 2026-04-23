@@ -6,8 +6,13 @@ export const register = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await authService.register(email, password);
     res.status(201).json(user);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message || "Registration failed" });
+  } catch (err: unknown) {
+    console.error("register failed:", err);
+    // единственная ошибка, которую можно показать юзеру — "email занят"
+    if (err instanceof Error && err.message === "Email already in use") {
+      return res.status(409).json({ error: "Email already in use" });
+    }
+    res.status(500).json({ error: "Registration failed" });
   }
 };
 
@@ -16,7 +21,10 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const result = await authService.login(email, password);
     res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message || "Login failed" });
+  } catch (err: unknown) {
+    console.error("login failed:", err);
+    // НЕ разделяем "user not found" и "invalid password" — юзеру одинаковая ошибка,
+    // иначе можно перебирать email'ы (user enumeration)
+    res.status(401).json({ error: "Invalid email or password" });
   }
 };
