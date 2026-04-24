@@ -1,5 +1,5 @@
 import { Router } from "express";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import * as authController from "../controllers/authController";
 import { validate } from "../middleware/validate";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchema";
@@ -12,18 +12,7 @@ const authLimiter = rateLimit({
   message: { error: "Too many attempts. Try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => {
-    console.log(
-      `[LIMITER] hit from ip=${req.ip} xff=${req.headers["x-forwarded-for"]}`,
-    );
-    return req.ip ?? "unknown";
-  },
-  handler: (req, res) => {
-    console.log(`[LIMITER] BLOCKED ip=${req.ip}`);
-    res
-      .status(429)
-      .json({ error: "Too many attempts. Try again in 15 minutes." });
-  },
+  keyGenerator: (req) => ipKeyGenerator(req.ip ?? "unknown"),
 });
 
 router.post(
