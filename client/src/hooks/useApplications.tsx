@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import api from "../api/axios";
@@ -12,100 +12,155 @@ export interface Application {
   notes: string;
 }
 
+const APPLICATIONS_KEY = ["applications"];
+
 export const useApplications = () => {
   const { t } = useTranslation();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchApplications = async () => {
-    try {
-      const res = await api.get("/applications");
-      setApplications(res.data);
-    } catch {
-      toast.error(t("dashboard.loadFailed"));
-    } finally {
-      setInitialLoading(false);
-    }
-  };
+  // Загрузка списка
+  const { data: applications = [], isLoading: initialLoading } = useQuery<
+    Application[]
+  >({
+    queryKey: APPLICATIONS_KEY,
+    queryFn: async () => {
+      try {
+        const res = await api.get("/applications");
+        return res.data;
+      } catch (err) {
+        toast.error(t("dashboard.loadFailed"));
+        throw err;
+      }
+    },
+  });
 
-  useEffect(() => {
-    fetchApplications();
-  }, []);
+  // Добавление
+  const addMutation = useMutation({
+    mutationFn: async (data: {
+      company: string;
+      position: string;
+      notes: string;
+    }) => {
+      const res = await api.post("/applications", data);
+      return res.data as Application;
+    },
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: APPLICATIONS_KEY });
+      const previous =
+        queryClient.getQueryData<Application[]>(APPLICATIONS_KEY);
+      const tempId = -Date.now();
+      const optimistic: Application = {
+        id: tempId,
+        company: newData.company,
+        position: newData.position,
+        notes: newData.notes,
+        status: "applied",
+        date_applied: new Date().toISOString(),
+      };
+      queryClient.setQueryData<Application[]>(APPLICATIONS_KEY, (old = []) => [
+        optimistic,
+        ...old,
+      ]);
+      return { previous, tempId };
+    },
+    onSuccess: (serverData, _vars, context) => {
+      queryClient.setQueryData<Application[]>(APPLICATIONS_KEY, (old = []) =>
+        old.map((a) => (a.id === context?.tempId ? serverData : a)),
+      );
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(APPLICATIONS_KEY, context.previous);
+      }
+      toast.error(t("dashboard.addFailed"));
+    },
+  });
 
-  // Optimistic: вставляем с temp id сразу, заменяем реальной записью после ответа сервера
-  const addApplication = async (data: {
+  // Обновление статуса
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      await api.patch(`/applications/${id}/status`, { status });
+      return { id, status };
+    },
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: APPLICATIONS_KEY });
+      const previous =
+        queryClient.getQueryData<Application[]>(APPLICATIONS_KEY);
+      queryClient.setQueryData<Application[]>(APPLICATIONS_KEY, (old = []) =>
+        old.map((a) => (a.id === id ? { ...a, status } : a)),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(APPLICATIONS_KEY, context.previous);
+      }
+      toast.error(t("dashboard.updateFailed"));
+    },
+  });
+
+  // Обновление полей
+  const updateApplicationMutation = useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: Partial<Application>;
+    }) => {
+      await api.patch(`/applications/${id}`, data);
+      return { id, data };
+    },
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: APPLICATIONS_KEY });
+      const previous =
+        queryClient.getQueryData<Application[]>(APPLICATIONS_KEY);
+      queryClient.setQueryData<Application[]>(APPLICATIONS_KEY, (old = []) =>
+        old.map((a) => (a.id === id ? { ...a, ...data } : a)),
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(APPLICATIONS_KEY, context.previous);
+      }
+      toast.error(t("dashboard.updateFailed"));
+    },
+  });
+
+  // Удаление с undo
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/applications/${id}`);
+      return id;
+    },
+    onError: () => {
+      toast.error(t("dashboard.deleteFailed"));
+      queryClient.invalidateQueries({ queryKey: APPLICATIONS_KEY });
+    },
+  });
+
+  // Публичный API — совместим с тем, что было
+  const addApplication = (data: {
     company: string;
     position: string;
     notes: string;
-  }) => {
-    const tempId = -Date.now();
-    const optimistic: Application = {
-      id: tempId,
-      company: data.company,
-      position: data.position,
-      notes: data.notes,
-      status: "applied",
-      date_applied: new Date().toISOString(),
-    };
+  }) => addMutation.mutateAsync(data);
 
-    setApplications((prev) => [optimistic, ...prev]);
+  const updateStatus = (id: number, status: string) =>
+    updateStatusMutation.mutateAsync({ id, status });
 
-    try {
-      const res = await api.post("/applications", data);
-      setApplications((prev) =>
-        prev.map((a) => (a.id === tempId ? res.data : a)),
-      );
-    } catch (err) {
-      setApplications((prev) => prev.filter((a) => a.id !== tempId));
-      toast.error(t("dashboard.addFailed"));
-      throw err;
-    }
-  };
+  const updateApplication = (id: number, data: Partial<Application>) =>
+    updateApplicationMutation.mutateAsync({ id, data });
 
-  // Optimistic: статус меняется мгновенно, откат при ошибке
-  const updateStatus = async (id: number, status: string) => {
-    const previous = applications.find((a) => a.id === id);
-    if (!previous) return;
-
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status } : a)),
-    );
-
-    try {
-      await api.patch(`/applications/${id}/status`, { status });
-    } catch {
-      setApplications((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: previous.status } : a)),
-      );
-      toast.error(t("dashboard.updateFailed"));
-    }
-  };
-
-  // Optimistic: поля обновляются мгновенно, откат при ошибке
-  const updateApplication = async (id: number, data: Partial<Application>) => {
-    const previous = applications.find((a) => a.id === id);
-    if (!previous) return;
-
-    setApplications((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, ...data } : a)),
-    );
-
-    try {
-      await api.patch(`/applications/${id}`, data);
-    } catch (err) {
-      setApplications((prev) => prev.map((a) => (a.id === id ? previous : a)));
-      toast.error(t("dashboard.updateFailed"));
-      throw err;
-    }
-  };
-
-  // Undo delete: убираем из стейта мгновенно, даём 5 секунд на отмену
+  // Delete с toast-undo (как было)
   const deleteApplication = async (id: number) => {
     const previous = applications.find((a) => a.id === id);
     if (!previous) return;
 
-    // убираем из UI мгновенно
-    setApplications((prev) => prev.filter((a) => a.id !== id));
+    queryClient.setQueryData<Application[]>(APPLICATIONS_KEY, (old = []) =>
+      old.filter((a) => a.id !== id),
+    );
 
     let undone = false;
 
@@ -124,9 +179,9 @@ export const useApplications = () => {
           <button
             onClick={() => {
               undone = true;
-              // возвращаем запись на место
-              setApplications((prev) =>
-                [...prev, previous].sort((a, b) => b.id - a.id),
+              queryClient.setQueryData<Application[]>(
+                APPLICATIONS_KEY,
+                (old = []) => [...old, previous].sort((a, b) => b.id - a.id),
               );
               closeToast();
             }}
@@ -149,17 +204,9 @@ export const useApplications = () => {
       ),
       {
         autoClose: 5000,
-        onClose: async () => {
-          if (undone) return; // пользователь нажал Undo — DELETE не отправляем
-          try {
-            await api.delete(`/applications/${id}`);
-          } catch {
-            // сервер не удалил — возвращаем
-            setApplications((prev) =>
-              [...prev, previous].sort((a, b) => b.id - a.id),
-            );
-            toast.error(t("dashboard.deleteFailed"));
-          }
+        onClose: () => {
+          if (undone) return;
+          deleteMutation.mutate(id);
         },
       },
     );
