@@ -9,7 +9,7 @@ export const create = async (
   userId: number,
   company: string,
   position: string,
-  notes?: string
+  notes?: string,
 ) => {
   const app = await repo.create(userId, company, position, notes);
   await activityRepo.log(app.id, "created", { company, position });
@@ -21,7 +21,7 @@ export const remove = (id: string, userId: number) => repo.remove(id, userId);
 export const updateStatus = async (
   id: string,
   userId: number,
-  status: string
+  status: string,
 ) => {
   if (!VALID_STATUSES.includes(status)) throw new Error("Invalid status");
   const app = await repo.updateStatus(id, userId, status);
@@ -34,7 +34,7 @@ export const updateStatus = async (
 export const updateFields = async (
   id: string,
   userId: number,
-  body: Record<string, any>
+  body: Record<string, any>,
 ) => {
   const { company, position, status, notes } = body;
   const updates: string[] = [];
@@ -63,15 +63,14 @@ export const updateFields = async (
 
   values.push(id, userId);
   const app = await repo.updateFields(id, userId, updates, values);
-  
+
   if (app) {
     await activityRepo.log(app.id, "updated", body);
   }
-  
+
   return app;
 };
 
-// Новые функции для работы с логами
-export const getActivityLogs = (applicationId: number) => {
-  return activityRepo.getByApplicationId(applicationId);
+export const getActivityLogs = (applicationId: number, userId: number) => {
+  return activityRepo.getByApplicationId(applicationId, userId);
 };

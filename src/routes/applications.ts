@@ -25,7 +25,11 @@ router.patch(
 
 router.get("/:id/activity", async (req, res) => {
   try {
-    const logs = await activityRepo.getByApplicationId(Number(req.params.id));
+    const userId = (req as any).userId as number; // если хочешь, можно типизировать красивее
+    const logs = await activityRepo.getByApplicationId(
+      Number(req.params.id),
+      userId,
+    );
     res.json(logs);
   } catch (err) {
     console.error(err);
