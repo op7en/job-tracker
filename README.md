@@ -149,6 +149,4 @@ FRONTEND_URL=http://localhost:5173
 
 ---
 
-> Italian language support was added as a personal tribute to my aunt, who has lived in Italy since 2000.
-
 [Читать на русском](README.ru.md)
