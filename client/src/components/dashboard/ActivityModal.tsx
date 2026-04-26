@@ -35,8 +35,22 @@ const EVENT_ICONS: Record<string, string> = {
   updated: "✎",
 };
 
-const groupByDate = (logs: ActivityLog[], t: TFunction) => {
+const LOCALE_MAP: Record<string, string> = {
+  en: "en-GB",
+  it: "it-IT",
+  ru: "ru-RU",
+};
+
+const resolveLocale = (language: string): string => {
+  const normalized = language.toLowerCase();
+  const baseLanguage = normalized.split("-")[0];
+  return LOCALE_MAP[normalized] ?? LOCALE_MAP[baseLanguage] ?? LOCALE_MAP.en;
+};
+
+const groupByDate = (logs: ActivityLog[], t: TFunction, language: string) => {
   const groups: Record<string, ActivityLog[]> = {};
+  const locale = resolveLocale(language);
+
   logs.forEach((log) => {
     const date = new Date(log.created_at);
     const today = new Date();
@@ -49,9 +63,9 @@ const groupByDate = (logs: ActivityLog[], t: TFunction) => {
     } else if (date.toDateString() === yesterday.toDateString()) {
       label = t("activity.yesterday");
     } else {
-      label = date.toLocaleDateString("en-GB", {
+      label = date.toLocaleDateString(locale, {
         day: "numeric",
-        month: "short",
+        month: "long",
         year: "numeric",
       });
     }
@@ -91,7 +105,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
   app,
   onClose,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -129,7 +143,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
 
   if (!app) return null;
 
-  const grouped = groupByDate(logs, t);
+  const grouped = groupByDate(logs, t, i18n.resolvedLanguage || i18n.language);
 
   return (
     <div

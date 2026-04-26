@@ -18,6 +18,21 @@ app.use(
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
   }),
 );
+
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+app.get("/ready", async (_req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    res.status(200).json({ status: "ready" });
+  } catch (err) {
+    console.error("readiness check failed:", err);
+    res.status(503).json({ status: "not_ready" });
+  }
+});
+
 app.use("/auth", authRoutes);
 app.use("/applications", applicationRoutes);
 

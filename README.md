@@ -142,6 +142,13 @@ FRONTEND_URL=http://localhost:5173
 
 ---
 
+## Health & Readiness
+
+- `GET /health` — basic process health check
+- `GET /ready` — readiness check with database ping (`SELECT 1`)
+
+---
+
 ## Notes
 
 - Built with focus on product thinking, not just CRUD
