@@ -41,9 +41,15 @@ const LOCALE_MAP: Record<string, string> = {
   ru: "ru-RU",
 };
 
+const resolveLocale = (language: string): string => {
+  const normalized = language.toLowerCase();
+  const baseLanguage = normalized.split("-")[0];
+  return LOCALE_MAP[normalized] ?? LOCALE_MAP[baseLanguage] ?? LOCALE_MAP.en;
+};
+
 const groupByDate = (logs: ActivityLog[], t: TFunction, language: string) => {
   const groups: Record<string, ActivityLog[]> = {};
-  const locale = LOCALE_MAP[language] ?? LOCALE_MAP.en;
+  const locale = resolveLocale(language);
 
   logs.forEach((log) => {
     const date = new Date(log.created_at);
