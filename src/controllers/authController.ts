@@ -1,5 +1,49 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import * as authService from "../services/authService";
+
+const REFRESH_COOKIE = "refresh_token";
+const CSRF_COOKIE = "csrf_token";
+const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+
+const refreshCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/auth",
+  maxAge: REFRESH_MAX_AGE,
+};
+
+const csrfCookieOptions = {
+  httpOnly: false,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: REFRESH_MAX_AGE,
+};
+
+const getCookie = (req: Request, key: string): string | undefined => {
+  const raw = req.headers.cookie;
+  if (!raw) return undefined;
+
+  const parts = raw.split(";").map((p) => p.trim());
+  const item = parts.find((p) => p.startsWith(`${key}=`));
+  if (!item) return undefined;
+  return decodeURIComponent(item.slice(key.length + 1));
+};
+
+const ensureCsrf = (req: Request, res: Response): boolean => {
+  const cookieToken = getCookie(req, CSRF_COOKIE);
+  const headerToken = req.headers["x-csrf-token"];
+  const headerValue =
+    typeof headerToken === "string" ? headerToken : headerToken?.[0];
+
+  if (!cookieToken || !headerValue || cookieToken !== headerValue) {
+    res.status(403).json({ error: "Invalid CSRF token" });
+    return false;
+  }
+  return true;
+};
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -20,11 +64,66 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await authService.login(email, password);
-    res.json(result);
+    const csrfToken = crypto.randomBytes(24).toString("hex");
+    res.cookie(REFRESH_COOKIE, result.refreshToken, refreshCookieOptions);
+    res.cookie(CSRF_COOKIE, csrfToken, csrfCookieOptions);
+    res.json({ accessToken: result.accessToken, user: result.user, csrfToken });
   } catch (err: unknown) {
     console.error("login failed:", err);
     // НЕ разделяем "user not found" и "invalid password" — юзеру одинаковая ошибка,
     // иначе можно перебирать email'ы (user enumeration)
     res.status(401).json({ error: "Invalid email or password" });
+  }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  try {
+    if (!ensureCsrf(req, res)) return;
+    const token = getCookie(req, REFRESH_COOKIE);
+    if (!token) return res.status(401).json({ error: "No refresh token" });
+
+    const result = await authService.refresh(token);
+    const csrfToken = crypto.randomBytes(24).toString("hex");
+    res.cookie(REFRESH_COOKIE, result.refreshToken, refreshCookieOptions);
+    res.cookie(CSRF_COOKIE, csrfToken, csrfCookieOptions);
+    res.json({ accessToken: result.accessToken, user: result.user, csrfToken });
+  } catch (err: unknown) {
+    console.error("refresh failed:", err);
+    res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+    res.clearCookie(CSRF_COOKIE, { path: "/" });
+    res.status(401).json({ error: "Invalid refresh token" });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    if (!ensureCsrf(req, res)) return;
+    const token = getCookie(req, REFRESH_COOKIE);
+    await authService.logout(token);
+    res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+    res.clearCookie(CSRF_COOKIE, { path: "/" });
+    res.status(204).send();
+  } catch (err: unknown) {
+    console.error("logout failed:", err);
+    res.status(500).json({ error: "Logout failed" });
+  }
+};
+
+interface AuthRequest extends Request {
+  userId?: number;
+}
+
+export const logoutAll = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!ensureCsrf(req, res)) return;
+    if (!req.userId) return res.status(401).json({ error: "No token" });
+
+    await authService.logoutAll(req.userId);
+    res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+    res.clearCookie(CSRF_COOKIE, { path: "/" });
+    res.status(204).send();
+  } catch (err: unknown) {
+    console.error("logout-all failed:", err);
+    res.status(500).json({ error: "Logout all failed" });
   }
 };
