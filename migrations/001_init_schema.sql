@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  company VARCHAR(255) NOT NULL,
+  position VARCHAR(255) NOT NULL,
+  status VARCHAR(50) DEFAULT 'applied',
+  date_applied DATE DEFAULT CURRENT_DATE,
+  notes TEXT
+);
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id SERIAL PRIMARY KEY,
+  application_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+  type VARCHAR(50) NOT NULL,
+  payload JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
