@@ -113,6 +113,7 @@ job-tracker/
 
 ---
 
+
 ## Getting Started
 
 ### Quick copy-paste setup
@@ -138,6 +139,33 @@ npm install
 npm run migrate
 npm run dev
 ```
+=======
+## Getting Started
+
+### Quick copy-paste setup
+
+```bash
+# 1) Backend
+cd job-tracker
+npm install
+npm run migrate
+npm run dev
+
+# 2) Frontend (new terminal)
+cd client
+npm install
+npm run dev
+```
+
+### Backend
+
+```bash
+cd job-tracker
+npm install
+npm run migrate
+npm run dev
+```
+
 
 ### Frontend
 
@@ -171,6 +199,31 @@ FRONTEND_URL=http://localhost:5173
 
 - `GET /health` — basic process health check
 - `GET /ready` — readiness check with database ping (`SELECT 1`)
+
+## Migrations
+
+- SQL migrations are stored in `./migrations`
+- Applied migrations are tracked in the `schema_migrations` table
+- Run manually with:
+
+```bash
+npm run migrate
+```
+
+---
+
+## Notes
+=======
+FRONTEND_URL=http://localhost:5173
+```
+
+---
+
+## Health & Readiness
+
+- `GET /health` — basic process health check
+- `GET /ready` — readiness check with database ping (`SELECT 1`)
+
 
 ## Migrations
 
