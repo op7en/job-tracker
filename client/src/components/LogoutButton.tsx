@@ -1,11 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import api, { clearAccessToken } from "../api/axios";
 
 const LogoutButton = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // даже если сервер недоступен — локально выходим
+    } finally {
+      clearAccessToken();
+      navigate("/");
+    }
   };
 
   return (
