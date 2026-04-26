@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import api from "../api/axios";
+import api, { setAccessToken } from "../api/axios";
 
 interface UseLoginFormReturn {
   email: string;
@@ -47,7 +47,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
         email: email.trim(),
         password,
       });
-      localStorage.setItem("token", res.data.token);
+      setAccessToken(res.data.accessToken);
       toast.success(t("auth.welcomeBack"));
       navigate("/dashboard");
     } catch {
