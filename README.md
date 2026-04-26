@@ -115,6 +115,21 @@ job-tracker/
 
 ## Getting Started
 
+### Quick copy-paste setup
+
+```bash
+# 1) Backend
+cd job-tracker
+npm install
+npm run migrate
+npm run dev
+
+# 2) Frontend (new terminal)
+cd client
+npm install
+npm run dev
+```
+
 ### Backend
 
 ```bash
