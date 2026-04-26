@@ -163,6 +163,7 @@ FRONTEND_URL=http://localhost:5173
 - `GET /health` — basic process health check
 - `GET /ready` — readiness check with database ping (`SELECT 1`)
 
+
 ## Migrations
 
 - SQL migrations are stored in `./migrations`
