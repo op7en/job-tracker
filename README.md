@@ -120,6 +120,7 @@ job-tracker/
 ```bash
 cd job-tracker
 npm install
+npm run migrate
 npm run dev
 ```
 
@@ -138,6 +139,23 @@ PORT=3000
 JWT_SECRET=your_secret
 DATABASE_URL=your_postgresql_url
 FRONTEND_URL=http://localhost:5173
+```
+
+---
+
+## Health & Readiness
+
+- `GET /health` — basic process health check
+- `GET /ready` — readiness check with database ping (`SELECT 1`)
+
+## Migrations
+
+- SQL migrations are stored in `./migrations`
+- Applied migrations are tracked in the `schema_migrations` table
+- Run manually with:
+
+```bash
+npm run migrate
 ```
 
 ---
