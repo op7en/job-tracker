@@ -2,7 +2,7 @@
 
 ![Demo](./client/public/demo.gif)
 
-A job application tracker that behaves like a lightweight ATS.
+A job application tracker designed as a lightweight ATS.
 
 Instead of just storing applications, it helps you understand your hiring pipeline, track progress, and take action when things stall.
 
@@ -13,30 +13,30 @@ Instead of just storing applications, it helps you understand your hiring pipeli
 ## Why this exists
 
 Most job trackers are simple lists.
-They do not show what is actually happening with your applications.
+They don't show what's actually happening with your applications.
 
 This project focuses on **process visibility and decision-making**:
 
-- Visual pipeline instead of a static list
+- Visual pipeline instead of static lists
 - Activity history for every application
 - Detection of stalled applications
 - Basic analytics to understand outcomes
 
 ---
 
-## Core Features
+## Features
 
-### Pipeline (Kanban View)
+### Pipeline (Kanban Board)
 
-Visualize your applications across stages and move them with drag & drop.
+Visualize applications across stages and move them via drag & drop.
 
-### Activity Tracking
+### Activity Log
 
-Every change is recorded: status updates, edits, and timeline per application.
+Every change is recorded: status updates, edits, and full timeline per application.
 
 ### Stale Detection
 
-Applications with no response for 7+ days are highlighted, helping you decide when to follow up or move on.
+Applications with no response for 7+ days are highlighted — helping decide when to follow up or move on.
 
 ### Insights
 
@@ -52,42 +52,43 @@ Quick overview of total applications, interviews, offers, rejections, and respon
 ## Screenshots
 
 ### Kanban
-
 ![Kanban](./client/public/kanban.png)
 
 ### Mobile
-
 ![Mobile](./client/public/mobile.png)
 
 ### Table
-
 ![Table](./client/public/table.png)
 
 ### History
-
 ![History](./client/public/history.gif)
 
 ---
 
 ## Real Usage
 
-I use this app to track my own job search:
-
-- monitor response rate
-- detect stalled applications
-- track interview progress
+This app is used to track my own job search: monitoring response rate, identifying stalled applications, and tracking interview progress.
 
 ---
 
 ## Tech Stack
 
 | Layer        | Technologies                                                         |
-| ------------ | -------------------------------------------------------------------- |
+|--------------|----------------------------------------------------------------------|
 | Frontend     | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
 | Backend      | Node.js, Express, TypeScript, PostgreSQL                             |
-| Auth         | JWT, bcrypt                                                          |
+| Auth         | JWT access tokens · Refresh token rotation · httpOnly cookies · bcrypt |
 | Architecture | Controllers / Services / Repositories                                |
-| Deploy       | Vercel (frontend) · Railway (backend + database)                     |
+| Deployment   | Vercel (frontend) · Railway (backend + database)                     |
+
+---
+
+## Auth Architecture
+
+- **Access token** — short-lived JWT (15 min), stored in memory, sent via `Authorization: Bearer`
+- **Refresh token** — long-lived (30 days), stored as SHA-256 hash in PostgreSQL, sent via `httpOnly` cookie scoped to `/auth`
+- **Token rotation** — every refresh invalidates the old token and issues a new one; reuse of a revoked token is rejected immediately
+- **Silent refresh** — Axios interceptor automatically refreshes the access token on 401 and retries the original request; concurrent 401s share a single refresh promise to avoid race conditions
 
 ---
 
@@ -97,7 +98,7 @@ I use this app to track my own job search:
 job-tracker/
 ├── client/
 │   └── src/
-│       ├── api/
+│       ├── api/           # Axios instance + interceptors
 │       ├── components/
 │       ├── hooks/
 │       ├── context/
@@ -105,71 +106,24 @@ job-tracker/
 │       └── pages/
 └── src/
     ├── config/
-    ├── controllers/
-    ├── services/
-    ├── repositories/
+    ├── controllers/       # HTTP layer
+    ├── services/          # Business logic
+    ├── repositories/      # Database access
     └── middleware/
 ```
 
 ---
 
-
-## Getting Started
-
-### Quick copy-paste setup
+## Local Setup
 
 ```bash
-# 1) Backend
+# 1. Backend
 cd job-tracker
 npm install
 npm run migrate
 npm run dev
 
-# 2) Frontend (new terminal)
-cd client
-npm install
-npm run dev
-```
-
-### Backend
-
-```bash
-cd job-tracker
-npm install
-npm run migrate
-npm run dev
-```
-=======
-## Getting Started
-
-### Quick copy-paste setup
-
-```bash
-# 1) Backend
-cd job-tracker
-npm install
-npm run migrate
-npm run dev
-
-# 2) Frontend (new terminal)
-cd client
-npm install
-npm run dev
-```
-
-### Backend
-
-```bash
-cd job-tracker
-npm install
-npm run migrate
-npm run dev
-```
-
-
-### Frontend
-
-```bash
+# 2. Frontend (new terminal)
 cd client
 npm install
 npm run dev
@@ -184,52 +138,14 @@ DATABASE_URL=your_postgresql_url
 FRONTEND_URL=http://localhost:5173
 ```
 
----
+### Health & Readiness
 
-## Auth Session Model
-
-- Access token: short-lived JWT (Bearer token in `Authorization` header)
-- Refresh token: stored in `HttpOnly` cookie (`/auth` scope), rotated on refresh
-- Endpoints:
-  - `POST /auth/login`
-  - `POST /auth/refresh`
-  - `POST /auth/logout`
-
-## Health & Readiness
-
-- `GET /health` — basic process health check
+- `GET /health` — basic process check
 - `GET /ready` — readiness check with database ping (`SELECT 1`)
 
-## Migrations
+### Migrations
 
-- SQL migrations are stored in `./migrations`
-- Applied migrations are tracked in the `schema_migrations` table
-- Run manually with:
-
-```bash
-npm run migrate
-```
-
----
-
-## Notes
-=======
-FRONTEND_URL=http://localhost:5173
-```
-
----
-
-## Health & Readiness
-
-- `GET /health` — basic process health check
-- `GET /ready` — readiness check with database ping (`SELECT 1`)
-
-
-## Migrations
-
-- SQL migrations are stored in `./migrations`
-- Applied migrations are tracked in the `schema_migrations` table
-- Run manually with:
+SQL migrations live in `./migrations` and are tracked in `schema_migrations`.
 
 ```bash
 npm run migrate
@@ -239,7 +155,8 @@ npm run migrate
 
 ## Notes
 
-- Built with focus on product thinking, not just CRUD
+- Built with product thinking, not just CRUD
+- Layered architecture separates HTTP concerns from business logic and data access
 - Designed to simulate a simplified ATS workflow
 
 ---
