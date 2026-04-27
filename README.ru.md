@@ -1,97 +1,98 @@
 # Job Tracker
 
-![Демо](./client/public/demo.gif)
+![Demo](./client/public/demo.gif)
 
-Трекер откликов на вакансии, который работает как упрощённая ATS-система.
+A job application tracker designed as a lightweight ATS.
 
-Не просто хранит заявки — помогает понимать воронку найма, отслеживать прогресс и реагировать, когда процесс застревает.
+Instead of just storing applications, it helps you understand your hiring pipeline, track progress, and take action when things stall.
 
 🔗 **[Live Demo](https://job-tracker-xi-lake.vercel.app)**
 
 ---
 
-## Зачем это сделано
+## Why this exists
 
-Большинство трекеров — просто списки.
-Они не показывают, что реально происходит с откликами.
+Most job trackers are simple lists.
+They don’t show what’s actually happening with your applications.
 
-Этот проект сфокусирован на **видимости процесса и принятии решений**:
+This project focuses on **process visibility and decision-making**:
 
-- Визуальная воронка вместо статичных списков
-- История изменений по каждой заявке
-- Обнаружение зависших откликов
-- Базовая аналитика для понимания результатов
-
----
-
-## Основные возможности
-
-### Воронка (Kanban-доска)
-
-Визуализация заявок по этапам с drag & drop для смены статусов.
-
-### Лог активности
-
-Каждое изменение записывается: смена статуса, редактирование, timeline по заявке.
-
-### Обнаружение зависших откликов
-
-Заявки без ответа 7+ дней подсвечиваются — помогает решить, когда напомнить о себе или двигаться дальше.
-
-### Статистика
-
-Быстрый обзор: всего заявок, собеседования, офферы, отказы, процент отклика.
-
-### Два режима просмотра
-
-- **Таблица** → точное управление, фильтрация, редактирование
-- **Доска** → визуализация процесса
+- Visual pipeline instead of static lists  
+- Activity history for every application  
+- Detection of stalled applications  
+- Basic analytics to understand outcomes  
 
 ---
 
-## Скриншоты
+## Features
 
-### Канбан
+### Pipeline (Kanban Board)
 
+Visualize applications across stages and move them via drag & drop.
+
+### Activity Log
+
+Every change is recorded: status updates, edits, and full timeline per application.
+
+### Stale Detection
+
+Applications with no response for 7+ days are highlighted — helping decide when to follow up or move on.
+
+### Insights
+
+Quick overview of:
+- total applications  
+- interviews  
+- offers  
+- rejections  
+- response rate  
+
+### Dual View
+
+- **Table** → precise control, filtering, editing  
+- **Board** → process visualization  
+
+---
+
+## Screenshots
+
+### Kanban
 ![Kanban](./client/public/kanban.png)
 
-### Мобильная версия
-
+### Mobile
 ![Mobile](./client/public/mobile.png)
 
-### Таблица
-
+### Table
 ![Table](./client/public/table.png)
 
-### История
-
+### History
 ![History](./client/public/history.gif)
 
 ---
 
-## Реальное использование
+## Real Usage
 
-Я использую это приложение для отслеживания собственного поиска работы:
+This app is used to track my own job search:
 
-- мониторю процент откликов
-- нахожу зависшие заявки
-- отслеживаю прогресс по собеседованиям
-
----
-
-## Стек
-
-| Слой        | Технологии                                                           |
-| ----------- | -------------------------------------------------------------------- |
-| Frontend    | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
-| Backend     | Node.js, Express, TypeScript, PostgreSQL                             |
-| Auth        | JWT, bcrypt                                                          |
-| Архитектура | Controllers / Services / Repositories                                |
-| Деплой      | Vercel (frontend) · Railway (backend + база данных)                  |
+- monitoring response rate  
+- identifying stalled applications  
+- tracking interview progress  
 
 ---
 
-## Структура проекта
+## Tech Stack
+
+| Layer      | Technologies                                                       |
+|------------|--------------------------------------------------------------------|
+| Frontend   | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
+| Backend    | Node.js, Express, TypeScript, PostgreSQL                           |
+| Auth       | JWT, bcrypt                                                        |
+| Architecture | Controllers / Services / Repositories                            |
+| Deployment | Vercel (frontend) · Railway (backend + database)                   |
+
+---
+
+## Project Structure
 
 ```text
 job-tracker/
@@ -113,7 +114,7 @@ job-tracker/
 
 ---
 
-## Запуск локально
+## Local Setup
 
 ### Backend
 
@@ -131,7 +132,7 @@ npm install
 npm run dev
 ```
 
-### Переменные окружения
+### Environment Variables
 
 ```env
 PORT=3000
@@ -142,11 +143,11 @@ FRONTEND_URL=http://localhost:5173
 
 ---
 
-## Примечания
+## Notes
 
-- Проект сделан с фокусом на продуктовое мышление, а не просто CRUD
-- Спроектирован как упрощённый ATS-воркфлоу
+- Built with focus on product thinking, not just CRUD  
+- Designed as a simplified ATS workflow  
 
 ---
 
-[Read in English](README.md)
+[Read in Russian](README.ru.md)
