@@ -4,6 +4,10 @@ import * as authService from "../services/authService";
 const REFRESH_COOKIE = "refresh_token";
 const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
+interface AuthRequest extends Request {
+  userId?: number;
+}
+
 const refreshCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -88,5 +92,24 @@ export const logout = async (req: Request, res: Response) => {
   } catch (err: unknown) {
     console.error("logout failed:", err);
     res.status(500).json({ error: "Logout failed" });
+  }
+};
+
+export const me = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = await authService.getCurrentUser(req.userId);
+    res.json({ user });
+  } catch (err: unknown) {
+    if (
+      err instanceof authService.AuthError &&
+      err.code === "INVALID_CREDENTIALS"
+    ) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.error("me failed:", err);
+    res.status(500).json({ error: "Failed to load current user" });
   }
 };
