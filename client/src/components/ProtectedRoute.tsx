@@ -7,24 +7,21 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const [isChecking, setIsChecking] = useState(!hasAccessToken());
-  const [isAuthorized, setIsAuthorized] = useState(hasAccessToken());
+  const hasToken = hasAccessToken();
+  const [isChecking, setIsChecking] = useState(!hasToken);
+  const [isAuthorized, setIsAuthorized] = useState(hasToken);
 
   useEffect(() => {
-    let mounted = true;
-    if (!hasAccessToken()) {
-      refreshAccessToken().then((token) => {
-        if (!mounted) return;
-        setIsAuthorized(Boolean(token));
-        setIsChecking(false);
-      });
-      return () => {
-        mounted = false;
-      };
-    }
+    if (hasAccessToken()) return;
 
-    setIsChecking(false);
-    setIsAuthorized(true);
+    let mounted = true;
+
+    refreshAccessToken().then((token) => {
+      if (!mounted) return;
+      setIsAuthorized(Boolean(token));
+      setIsChecking(false);
+    });
+
     return () => {
       mounted = false;
     };
