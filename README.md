@@ -52,15 +52,19 @@ Quick overview of total applications, interviews, offers, rejections, and respon
 ## Screenshots
 
 ### Kanban
+
 ![Kanban](./client/public/kanban.png)
 
 ### Mobile
+
 ![Mobile](./client/public/mobile.png)
 
 ### Table
+
 ![Table](./client/public/table.png)
 
 ### History
+
 ![History](./client/public/history.gif)
 
 ---
@@ -73,13 +77,13 @@ This app is used to track my own job search: monitoring response rate, identifyi
 
 ## Tech Stack
 
-| Layer        | Technologies                                                         |
-|--------------|----------------------------------------------------------------------|
-| Frontend     | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
-| Backend      | Node.js, Express, TypeScript, PostgreSQL                             |
+| Layer        | Technologies                                                           |
+| ------------ | ---------------------------------------------------------------------- |
+| Frontend     | React, TypeScript, Vite, React Router, react-i18next, react-toastify   |
+| Backend      | Node.js, Express, TypeScript, PostgreSQL                               |
 | Auth         | JWT access tokens · Refresh token rotation · httpOnly cookies · bcrypt |
-| Architecture | Controllers / Services / Repositories                                |
-| Deployment   | Vercel (frontend) · Railway (backend + database)                     |
+| Architecture | Controllers / Services / Repositories                                  |
+| Deployment   | Vercel (frontend) · Railway (backend + database)                       |
 
 ---
 
