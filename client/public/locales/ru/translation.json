@@ -32,7 +32,16 @@
     "accountCreated": "Аккаунт создан — теперь войдите",
     "registrationFailed": "Ошибка регистрации. Возможно, email уже занят.",
     "welcomeBack": "С возвращением",
-    "invalidCredentials": "Неверный email или пароль"
+    "invalidCredentials": "Неверный email или пароль",
+    "loginFailed": "Не удалось войти. Попробуйте снова.",
+    "emailAlreadyInUse": "Этот email уже зарегистрирован",
+    "validationFailed": "Проверьте поля и попробуйте снова",
+    "tooManyAttempts": "Слишком много попыток. Попробуйте через 15 минут.",
+    "serverError": "Ошибка сервера. Попробуйте позже.",
+    "serverUnavailable": "Сервер не отвечает. Проверьте соединение или попробуйте чуть позже.",
+    "connectingServer": "Подключение к серверу...",
+    "serverWarmingUp": "Сервер запускается. Это может занять несколько секунд.",
+    "serverUnavailableShort": "Сервер не отвечает. Попробуйте чуть позже."
   },
   "dashboard": {
     "title": "JobTracker",

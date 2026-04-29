@@ -32,7 +32,16 @@
     "accountCreated": "Account created — sign in now",
     "registrationFailed": "Registration failed. Email may be taken.",
     "welcomeBack": "Welcome back",
-    "invalidCredentials": "Invalid email or password"
+    "invalidCredentials": "Invalid email or password",
+    "loginFailed": "Sign in failed. Try again.",
+    "emailAlreadyInUse": "This email is already registered",
+    "validationFailed": "Check the fields and try again",
+    "tooManyAttempts": "Too many attempts. Try again in 15 minutes.",
+    "serverError": "Server error. Try again later.",
+    "serverUnavailable": "Server is not responding. Check the connection or try again shortly.",
+    "connectingServer": "Connecting to server...",
+    "serverWarmingUp": "Server is starting. This can take a few seconds.",
+    "serverUnavailableShort": "Server is not responding. Try again shortly."
   },
   "dashboard": {
     "title": "JobTracker",
