@@ -32,7 +32,16 @@
     "accountCreated": "Account creato — ora accedi",
     "registrationFailed": "Registrazione fallita. Email già in uso.",
     "welcomeBack": "Bentornato",
-    "invalidCredentials": "Email o password non validi"
+    "invalidCredentials": "Email o password non validi",
+    "loginFailed": "Accesso fallito. Riprova.",
+    "emailAlreadyInUse": "Questa email è già registrata",
+    "validationFailed": "Controlla i campi e riprova",
+    "tooManyAttempts": "Troppi tentativi. Riprova tra 15 minuti.",
+    "serverError": "Errore del server. Riprova più tardi.",
+    "serverUnavailable": "Il server non risponde. Controlla la connessione o riprova tra poco.",
+    "connectingServer": "Connessione al server...",
+    "serverWarmingUp": "Il server si sta avviando. Potrebbero servire alcuni secondi.",
+    "serverUnavailableShort": "Il server non risponde. Riprova tra poco."
   },
   "dashboard": {
     "title": "JobTracker",
