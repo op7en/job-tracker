@@ -38,6 +38,10 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   return refreshPromise;
 };
 
+export const warmUpApi = async (): Promise<void> => {
+  await api.get("/health", { timeout: 20000 });
+};
+
 api.interceptors.request.use((config) => {
   if (accessToken && config.headers) {
     config.headers.Authorization = `Bearer ${accessToken}`;

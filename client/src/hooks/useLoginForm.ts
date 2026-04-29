@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import api, { setAccessToken } from "../api/axios";
+import { getLoginErrorMessageKey } from "../utils/authErrorMessages";
 
 interface UseLoginFormReturn {
   email: string;
@@ -39,6 +40,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
     if (!validateForm()) return;
 
     setLoading(true);
@@ -50,8 +52,8 @@ export const useLoginForm = (): UseLoginFormReturn => {
       setAccessToken(res.data.accessToken);
       toast.success(t("auth.welcomeBack"));
       navigate("/dashboard");
-    } catch {
-      toast.error(t("auth.invalidCredentials"));
+    } catch (err) {
+      toast.error(t(getLoginErrorMessageKey(err)));
     } finally {
       setLoading(false);
     }

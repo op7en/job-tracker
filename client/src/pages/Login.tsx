@@ -5,15 +5,18 @@ import { AuthLayout } from "../components/AuthLayout";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { useLoginForm } from "../hooks/useLoginForm";
+import { useApiWarmup } from "../hooks/useApiWarmup";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { email, setEmail, password, setPassword, loading, handleSubmit } =
     useLoginForm();
+  const { isWarmingUp, warmupFailed } = useApiWarmup();
+  const submitDisabled = loading || isWarmingUp;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !loading) {
+    if (e.key === "Enter" && !submitDisabled) {
       e.preventDefault();
       handleSubmit();
     }
@@ -38,12 +41,31 @@ const Login: React.FC = () => {
         />
         <Button
           onClick={handleSubmit}
-          loading={loading}
-          loadingText={t("auth.signingIn")}
+          disabled={submitDisabled}
+          loading={loading || isWarmingUp}
+          loadingText={
+            isWarmingUp ? t("auth.connectingServer") : t("auth.signingIn")
+          }
           style={{ marginTop: "4px" }}
         >
           {t("auth.continue")}
         </Button>
+        {(isWarmingUp || warmupFailed) && (
+          <p
+            role="status"
+            aria-live="polite"
+            style={{
+              marginTop: "2px",
+              fontSize: "12px",
+              color: warmupFailed ? "var(--danger)" : "var(--text-secondary)",
+              minHeight: "18px",
+            }}
+          >
+            {isWarmingUp
+              ? t("auth.serverWarmingUp")
+              : t("auth.serverUnavailableShort")}
+          </p>
+        )}
       </div>
 
       <p

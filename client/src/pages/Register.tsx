@@ -7,11 +7,13 @@ import { PrivacyConsent } from "../components/PrivacyConsent";
 import { PrivacyModal } from "../components/PrivacyModal";
 import { useRegisterForm } from "../hooks/useRegisterForm";
 import { AuthLayout } from "../components/AuthLayout";
+import { useApiWarmup } from "../hooks/useApiWarmup";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isWarmingUp, warmupFailed } = useApiWarmup();
 
   const {
     email,
@@ -23,9 +25,10 @@ const Register: React.FC = () => {
     loading,
     handleSubmit,
   } = useRegisterForm();
+  const submitDisabled = loading || isWarmingUp;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !loading) {
+    if (e.key === "Enter" && !submitDisabled) {
       e.preventDefault();
       handleSubmit();
     }
@@ -59,12 +62,33 @@ const Register: React.FC = () => {
 
           <Button
             onClick={handleSubmit}
-            loading={loading}
-            loadingText={t("auth.creating")}
+            disabled={submitDisabled}
+            loading={loading || isWarmingUp}
+            loadingText={
+              isWarmingUp ? t("auth.connectingServer") : t("auth.creating")
+            }
             style={{ marginTop: "4px" }}
           >
             {t("auth.createAccount")}
           </Button>
+          {(isWarmingUp || warmupFailed) && (
+            <p
+              role="status"
+              aria-live="polite"
+              style={{
+                marginTop: "2px",
+                fontSize: "12px",
+                color: warmupFailed
+                  ? "var(--danger)"
+                  : "var(--text-secondary)",
+                minHeight: "18px",
+              }}
+            >
+              {isWarmingUp
+                ? t("auth.serverWarmingUp")
+                : t("auth.serverUnavailableShort")}
+            </p>
+          )}
         </div>
 
         <p

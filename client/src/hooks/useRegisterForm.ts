@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import api from "../api/axios";
+import { getRegisterErrorMessageKey } from "../utils/authErrorMessages";
 
 interface UseRegisterFormReturn {
   email: string;
@@ -52,6 +53,7 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
     if (!validateForm()) return;
 
     setLoading(true);
@@ -62,8 +64,8 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
       });
       toast.success(t("auth.accountCreated"));
       navigate("/");
-    } catch {
-      toast.error(t("auth.registrationFailed"));
+    } catch (err) {
+      toast.error(t(getRegisterErrorMessageKey(err)));
     } finally {
       setLoading(false);
     }

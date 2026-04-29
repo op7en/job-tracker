@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import type { TFunction } from "i18next";
 import { fetchActivityLog } from "../../api/axios";
 import type { Application } from "../../hooks/useApplications";
@@ -106,32 +107,16 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
   onClose,
 }) => {
   const { t, i18n } = useTranslation();
-  const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!app) return;
-
-    // флаг для защиты от race condition:
-    // если юзер быстро переключит модалку — старый запрос не перетрёт новые данные
-    let cancelled = false;
-
-    setLoading(true);
-    fetchActivityLog(app.id)
-      .then((res) => {
-        if (!cancelled) setLogs(res.data);
-      })
-      .catch(() => {
-        if (!cancelled) setLogs([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [app]);
+  const appId = app?.id;
+  const { data: logs = [], isLoading: loading } = useQuery<ActivityLog[]>({
+    queryKey: ["activity", appId],
+    queryFn: async () => {
+      if (!appId) return [];
+      const res = await fetchActivityLog(appId);
+      return res.data;
+    },
+    enabled: Boolean(appId),
+  });
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
