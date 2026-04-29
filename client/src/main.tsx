@@ -3,11 +3,14 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PublicOnlyRoute } from "./components/PublicOnlyRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/theme.css";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -29,20 +32,37 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route
+                  path="/login"
+                  element={
+                    <PublicOnlyRoute>
+                      <Login />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <PublicOnlyRoute>
+                      <Register />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
           <ToastContainer
             position="bottom-right"
             autoClose={3000}

@@ -101,7 +101,7 @@ const Register: React.FC = () => {
         >
           {t("auth.alreadyHaveAccount")}{" "}
           <span
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             style={{ color: "var(--accent)", cursor: "pointer" }}
           >
             {t("auth.signInLink")}
