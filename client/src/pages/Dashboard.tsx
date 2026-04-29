@@ -10,6 +10,7 @@ import { DesktopTable } from "../components/dashboard/DesktopTable";
 import { MobileCards } from "../components/dashboard/MobileCards";
 import { KanbanBoard } from "../components/dashboard/KanbanBoard";
 import { ViewToggle } from "../components/dashboard/ViewToggle";
+import { OnboardingEmptyState } from "../components/dashboard/OnboardingEmptyState";
 import LogoutButton from "../components/LogoutButton";
 interface Application {
   id: number;
@@ -89,6 +90,7 @@ const Dashboard = () => {
   };
 
   const [view, setView] = useState<"table" | "board">("table");
+  const showOnboarding = !initialLoading && applications.length === 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-app)" }}>
@@ -151,8 +153,14 @@ const Dashboard = () => {
       >
         <StatsStrip {...stats} />
 
-        <AddApplicationForm onAdd={handleAdd} isMobile={isMobile} />
-        {view === "board" ? (
+        <AddApplicationForm
+          onAdd={handleAdd}
+          isMobile={isMobile}
+          isFirstAction={showOnboarding}
+        />
+        {showOnboarding ? (
+          <OnboardingEmptyState />
+        ) : view === "board" ? (
           <KanbanBoard
             applications={applications}
             onUpdateStatus={handleUpdateStatus}

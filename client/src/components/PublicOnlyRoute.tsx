@@ -3,14 +3,16 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { AuthRestoreScreen } from "./AuthRestoreScreen";
 
-interface ProtectedRouteProps {
+interface PublicOnlyRouteProps {
   children: React.ReactNode;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = ({
+  children,
+}) => {
   const { isAuthenticated, isRestoring } = useAuth();
 
   if (isRestoring) return <AuthRestoreScreen />;
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 };

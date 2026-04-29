@@ -52,15 +52,19 @@
 ## Скриншоты
 
 ### Kanban
+
 ![Kanban](./client/public/kanban.png)
 
 ### Мобильный вид
+
 ![Mobile](./client/public/mobile.png)
 
 ### Таблица
+
 ![Table](./client/public/table.png)
 
 ### История
+
 ![History](./client/public/history.gif)
 
 ---
@@ -73,13 +77,13 @@
 
 ## Технологический стек
 
-| Слой         | Технологии                                                           |
-|--------------|----------------------------------------------------------------------|
-| Фронтенд     | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
-| Бэкенд       | Node.js, Express, TypeScript, PostgreSQL                             |
-| Авторизация  | JWT access-токены · Ротация refresh-токенов · httpOnly cookies · bcrypt |
-| Архитектура  | Controllers / Services / Repositories                                |
-| Деплой       | Vercel (фронтенд) · Railway (бэкенд + база данных)                  |
+| Слой        | Технологии                                                              |
+| ----------- | ----------------------------------------------------------------------- |
+| Фронтенд    | React, TypeScript, Vite, React Router, react-i18next, react-toastify    |
+| Бэкенд      | Node.js, Express, TypeScript, PostgreSQL                                |
+| Авторизация | JWT access-токены · Ротация refresh-токенов · httpOnly cookies · bcrypt |
+| Архитектура | Controllers / Services / Repositories                                   |
+| Деплой      | Vercel (фронтенд) · Railway (бэкенд + база данных)                      |
 
 ---
 

@@ -92,3 +92,9 @@ export const logout = async (refreshToken: string | undefined) => {
   const tokenHash = hashToken(refreshToken);
   await refreshTokenRepo.revokeByHash(tokenHash);
 };
+
+export const getCurrentUser = async (userId: number) => {
+  const user = await userRepo.findById(userId);
+  if (!user) throw new AuthError("INVALID_CREDENTIALS", "User not found");
+  return user;
+};

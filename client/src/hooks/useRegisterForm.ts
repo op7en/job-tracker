@@ -63,7 +63,7 @@ export const useRegisterForm = (): UseRegisterFormReturn => {
         password,
       });
       toast.success(t("auth.accountCreated"));
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       toast.error(t(getRegisterErrorMessageKey(err)));
     } finally {

@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import api, { clearAccessToken } from "../api/axios";
+import api from "../api/axios";
+import { useAuth } from "../context/useAuth";
 
 const LogoutButton = () => {
   const navigate = useNavigate();
+  const { clearSession } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -10,7 +12,7 @@ const LogoutButton = () => {
     } catch {
       // даже если сервер недоступен — локально выходим
     } finally {
-      clearAccessToken();
+      clearSession();
       navigate("/");
     }
   };

@@ -2,6 +2,7 @@ import { Router } from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import * as authController from "../controllers/authController";
 import { validate } from "../middleware/validate";
+import { authMiddleware } from "../middleware/authMiddleware";
 import { RegisterSchema, LoginSchema } from "../schemas/authSchema";
 
 const router = Router();
@@ -24,5 +25,6 @@ router.post(
 router.post("/login", authLimiter, validate(LoginSchema), authController.login);
 router.post("/refresh", authLimiter, authController.refresh);
 router.post("/logout", authController.logout);
+router.get("/me", authMiddleware, authController.me);
 
 export default router;

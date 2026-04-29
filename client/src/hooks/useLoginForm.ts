@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import api, { setAccessToken } from "../api/axios";
 import { getLoginErrorMessageKey } from "../utils/authErrorMessages";
+import { useAuth } from "../context/useAuth";
 
 interface UseLoginFormReturn {
   email: string;
@@ -21,6 +22,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setSession } = useAuth();
 
   const validateForm = (): boolean => {
     const trimmedEmail = email.trim();
@@ -50,6 +52,7 @@ export const useLoginForm = (): UseLoginFormReturn => {
         password,
       });
       setAccessToken(res.data.accessToken);
+      setSession(res.data.user);
       toast.success(t("auth.welcomeBack"));
       navigate("/dashboard");
     } catch (err) {

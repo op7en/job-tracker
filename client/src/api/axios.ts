@@ -1,5 +1,10 @@
 import axios from "axios";
 
+export interface AuthUser {
+  id: number;
+  email: string;
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
   withCredentials: true,
@@ -40,6 +45,11 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 
 export const warmUpApi = async (): Promise<void> => {
   await api.get("/health", { timeout: 20000 });
+};
+
+export const fetchCurrentUser = async (): Promise<AuthUser> => {
+  const res = await api.get<{ user: AuthUser }>("/auth/me");
+  return res.data.user;
 };
 
 api.interceptors.request.use((config) => {

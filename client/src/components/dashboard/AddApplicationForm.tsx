@@ -10,11 +10,13 @@ interface AddApplicationFormProps {
     notes: string;
   }) => Promise<void>;
   isMobile: boolean;
+  isFirstAction?: boolean;
 }
 
 export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
   onAdd,
   isMobile,
+  isFirstAction = false,
 }) => {
   const { t } = useTranslation();
   const [company, setCompany] = useState("");
@@ -69,15 +71,35 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
     <div
       style={{
         background: "var(--bg-surface)",
-        border: "1px solid var(--border)",
+        border: isFirstAction
+          ? "1px solid var(--accent)"
+          : "1px solid var(--border)",
         borderRadius: "10px",
         padding: "16px",
         marginBottom: "20px",
         display: "flex",
         gap: "10px",
         flexWrap: "wrap",
+        boxShadow: isFirstAction ? "0 0 0 3px var(--accent-muted)" : "none",
       }}
     >
+      {isFirstAction && (
+        <div style={{ width: "100%", marginBottom: "2px" }}>
+          <div
+            style={{
+              color: "var(--text-primary)",
+              fontSize: "14px",
+              fontWeight: 600,
+              marginBottom: "4px",
+            }}
+          >
+            {t("dashboard.firstActionTitle")}
+          </div>
+          <div style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
+            {t("dashboard.firstActionSubtitle")}
+          </div>
+        </div>
+      )}
       {placeholders.map(({ placeholder, value, setter, maxLength }) => (
         <input
           key={placeholder}
@@ -139,7 +161,11 @@ export const AddApplicationForm: React.FC<AddApplicationFormProps> = ({
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         )}
-        {isAdding ? t("dashboard.adding") : t("dashboard.addApplication")}
+        {isAdding
+          ? t("dashboard.adding")
+          : isFirstAction
+            ? t("dashboard.addFirstApplication")
+            : t("dashboard.addApplication")}
       </button>
     </div>
   );

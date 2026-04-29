@@ -8,6 +8,20 @@
     "undo": "Undo",
     "loading": "Loading..."
   },
+  "landing": {
+    "title": "Track every application without losing the next move",
+    "subtitle": "JobTracker keeps your pipeline, follow-ups, and outcomes in one focused workspace.",
+    "primaryCta": "Create account",
+    "secondaryCta": "Sign in",
+    "openDashboard": "Open dashboard",
+    "secondaryDashboard": "Continue tracking",
+    "pipelineTitle": "Pipeline",
+    "pipelineText": "See applications by status instead of hunting through notes.",
+    "historyTitle": "History",
+    "historyText": "Keep changes and progress attached to each application.",
+    "focusTitle": "Focus",
+    "focusText": "Spot stale applications and decide the next action faster."
+  },
   "auth": {
     "signIn": "Sign in to JobTracker",
     "signInSubtitle": "Track your applications in one place",
@@ -41,12 +55,16 @@
     "serverUnavailable": "Server is not responding. Check the connection or try again shortly.",
     "connectingServer": "Connecting to server...",
     "serverWarmingUp": "Server is starting. This can take a few seconds.",
-    "serverUnavailableShort": "Server is not responding. Try again shortly."
+    "serverUnavailableShort": "Server is not responding. Try again shortly.",
+    "restoringSession": "Restoring your session..."
   },
   "dashboard": {
     "title": "JobTracker",
     "applicationsCount_plural": "{{count}} applications",
     "addApplication": "Add application",
+    "addFirstApplication": "Add first application",
+    "firstActionTitle": "Start with one real application",
+    "firstActionSubtitle": "Company and position are enough. Add notes only if they help.",
     "adding": "Adding...",
     "company": "Company",
     "position": "Position",
@@ -68,6 +86,16 @@
     "updateFailed": "Failed to update",
     "fillRequired": "Company and position are required",
     "loadFailed": "Failed to load applications",
+    "emptyTitle": "Your pipeline is empty",
+    "emptySubtitle": "Add the first application above. After that you can update status, review history, and track stalled applications.",
+    "onboarding": {
+      "saveTitle": "Save the application",
+      "saveText": "Enter the company and role you applied to.",
+      "moveTitle": "Move it through stages",
+      "moveText": "Track applied, interview, offer, and rejection states.",
+      "reviewTitle": "Review progress",
+      "reviewText": "Use the activity history to see what changed."
+    },
     "stats": {
       "total": "Total",
       "interview": "Interview",
