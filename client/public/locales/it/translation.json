@@ -8,6 +8,20 @@
     "undo": "Annulla",
     "loading": "Caricamento..."
   },
+  "landing": {
+    "title": "Tieni traccia di ogni candidatura e del prossimo passo",
+    "subtitle": "JobTracker tiene pipeline, follow-up e risultati in uno spazio di lavoro mirato.",
+    "primaryCta": "Crea account",
+    "secondaryCta": "Accedi",
+    "openDashboard": "Apri dashboard",
+    "secondaryDashboard": "Continua a tracciare",
+    "pipelineTitle": "Pipeline",
+    "pipelineText": "Vedi le candidature per stato invece di cercarle tra le note.",
+    "historyTitle": "Cronologia",
+    "historyText": "Mantieni modifiche e progressi collegati a ogni candidatura.",
+    "focusTitle": "Focus",
+    "focusText": "Individua le candidature ferme e decidi prima il prossimo passo."
+  },
   "auth": {
     "signIn": "Accedi a JobTracker",
     "signInSubtitle": "Tieni traccia delle tue candidature",
@@ -41,12 +55,16 @@
     "serverUnavailable": "Il server non risponde. Controlla la connessione o riprova tra poco.",
     "connectingServer": "Connessione al server...",
     "serverWarmingUp": "Il server si sta avviando. Potrebbero servire alcuni secondi.",
-    "serverUnavailableShort": "Il server non risponde. Riprova tra poco."
+    "serverUnavailableShort": "Il server non risponde. Riprova tra poco.",
+    "restoringSession": "Ripristino della sessione..."
   },
   "dashboard": {
     "title": "JobTracker",
     "applicationsCount_plural": "{{count}} candidature",
     "addApplication": "Aggiungi candidatura",
+    "addFirstApplication": "Aggiungi prima candidatura",
+    "firstActionTitle": "Inizia con una candidatura reale",
+    "firstActionSubtitle": "Azienda e posizione bastano. Aggiungi note solo se servono.",
     "adding": "Aggiunta...",
     "company": "Azienda",
     "position": "Posizione",
@@ -68,6 +86,16 @@
     "updateFailed": "Impossibile aggiornare",
     "fillRequired": "Azienda e posizione sono obbligatorie",
     "loadFailed": "Impossibile caricare le candidature",
+    "emptyTitle": "La pipeline è vuota",
+    "emptySubtitle": "Aggiungi la prima candidatura qui sopra. Poi potrai aggiornare lo stato, rivedere la cronologia e seguire le candidature ferme.",
+    "onboarding": {
+      "saveTitle": "Salva la candidatura",
+      "saveText": "Inserisci azienda e ruolo a cui hai applicato.",
+      "moveTitle": "Spostala tra gli stati",
+      "moveText": "Segui inviato, colloquio, offerta e rifiuto.",
+      "reviewTitle": "Rivedi il progresso",
+      "reviewText": "Usa la cronologia per vedere cosa è cambiato."
+    },
     "stats": {
       "total": "Totale",
       "interview": "Colloqui",
