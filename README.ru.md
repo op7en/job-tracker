@@ -2,103 +2,107 @@
 
 ![Demo](./client/public/demo.gif)
 
-A job application tracker designed as a lightweight ATS.
+Трекер заявок на работу, спроектированный как упрощённая ATS-система.
 
-Instead of just storing applications, it helps you understand your hiring pipeline, track progress, and take action when things stall.
+Не просто хранит заявки — помогает понимать воронку найма, отслеживать прогресс и действовать когда процесс застревает.
 
-🔗 **[Live Demo](https://job-tracker-xi-lake.vercel.app)**
-
----
-
-## Why this exists
-
-Most job trackers are simple lists.
-They don’t show what’s actually happening with your applications.
-
-This project focuses on **process visibility and decision-making**:
-
-- Visual pipeline instead of static lists  
-- Activity history for every application  
-- Detection of stalled applications  
-- Basic analytics to understand outcomes  
+🔗 **[Живое демо](https://job-tracker-xi-lake.vercel.app)**
 
 ---
 
-## Features
+## Зачем это сделано
 
-### Pipeline (Kanban Board)
+Большинство трекеров — это просто списки.
+Они не показывают что реально происходит с заявками.
 
-Visualize applications across stages and move them via drag & drop.
+Этот проект сфокусирован на **видимости процесса и принятии решений**:
 
-### Activity Log
-
-Every change is recorded: status updates, edits, and full timeline per application.
-
-### Stale Detection
-
-Applications with no response for 7+ days are highlighted — helping decide when to follow up or move on.
-
-### Insights
-
-Quick overview of:
-- total applications  
-- interviews  
-- offers  
-- rejections  
-- response rate  
-
-### Dual View
-
-- **Table** → precise control, filtering, editing  
-- **Board** → process visualization  
+- Визуальная воронка вместо статичного списка
+- История активности по каждой заявке
+- Определение зависших заявок
+- Базовая аналитика по результатам
 
 ---
 
-## Screenshots
+## Функциональность
+
+### Воронка (Kanban-доска)
+
+Визуализация заявок по стадиям с перетаскиванием между колонками.
+
+### Журнал активности
+
+Каждое изменение фиксируется: смена статуса, правки, полная хронология по каждой заявке.
+
+### Определение зависших заявок
+
+Заявки без ответа 7+ дней подсвечиваются — помогает решить когда напомнить о себе или двигаться дальше.
+
+### Аналитика
+
+Быстрый обзор: всего заявок, интервью, офферов, отказов и процент ответов.
+
+### Два режима просмотра
+
+- **Таблица** → точное управление, фильтрация, редактирование
+- **Доска** → визуализация процесса
+
+---
+
+## Скриншоты
 
 ### Kanban
+
 ![Kanban](./client/public/kanban.png)
 
-### Mobile
+### Мобильный вид
+
 ![Mobile](./client/public/mobile.png)
 
-### Table
+### Таблица
+
 ![Table](./client/public/table.png)
 
-### History
+### История
+
 ![History](./client/public/history.gif)
 
 ---
 
-## Real Usage
+## Реальное использование
 
-This app is used to track my own job search:
-
-- monitoring response rate  
-- identifying stalled applications  
-- tracking interview progress  
+Я использую это приложение для собственного поиска работы: отслеживаю процент ответов, определяю зависшие заявки и слежу за прогрессом по интервью.
 
 ---
 
-## Tech Stack
+## Технологический стек
 
-| Layer      | Technologies                                                       |
-|------------|--------------------------------------------------------------------|
-| Frontend   | React, TypeScript, Vite, React Router, react-i18next, react-toastify |
-| Backend    | Node.js, Express, TypeScript, PostgreSQL                           |
-| Auth       | JWT, bcrypt                                                        |
-| Architecture | Controllers / Services / Repositories                            |
-| Deployment | Vercel (frontend) · Railway (backend + database)                   |
+| Слой        | Технологии                                                              |
+| ----------- | ----------------------------------------------------------------------- |
+| Фронтенд    | React, TypeScript, Vite, React Router, react-i18next, react-toastify    |
+| Бэкенд      | Node.js, Express, TypeScript, PostgreSQL                                |
+| Авторизация | JWT access-токены · Ротация refresh-токенов · httpOnly cookies · bcrypt |
+| Архитектура | Controllers / Services / Repositories                                   |
+| Деплой      | Vercel (фронтенд) · Railway (бэкенд + база данных)                      |
 
 ---
 
-## Project Structure
+## Архитектура авторизации
+
+- **Access token** — короткоживущий JWT (15 мин), хранится в памяти, передаётся через `Authorization: Bearer`
+- **Refresh token** — долгоживущий (30 дней), хранится в PostgreSQL в виде SHA-256 хеша, передаётся через `httpOnly` cookie ограниченную маршрутом `/auth`
+- **Ротация токенов** — при каждом обновлении старый токен инвалидируется и выдаётся новый; попытка повторно использовать отозванный токен немедленно отклоняется
+- **Тихое обновление** — Axios-интерсептор автоматически обновляет access-токен при 401 и повторяет оригинальный запрос; несколько одновременных 401 используют один общий промис чтобы избежать гонки запросов
+
+---
+
+## Структура проекта
 
 ```text
 job-tracker/
 ├── client/
 │   └── src/
-│       ├── api/
+│       ├── api/           # Axios + интерсепторы
 │       ├── components/
 │       ├── hooks/
 │       ├── context/
@@ -106,33 +110,30 @@ job-tracker/
 │       └── pages/
 └── src/
     ├── config/
-    ├── controllers/
-    ├── services/
-    ├── repositories/
+    ├── controllers/       # HTTP-слой
+    ├── services/          # Бизнес-логика
+    ├── repositories/      # Доступ к базе данных
     └── middleware/
 ```
 
 ---
 
-## Local Setup
-
-### Backend
+## Локальный запуск
 
 ```bash
+# 1. Бэкенд
 cd job-tracker
 npm install
+npm run migrate
 npm run dev
-```
 
-### Frontend
-
-```bash
+# 2. Фронтенд (новый терминал)
 cd client
 npm install
 npm run dev
 ```
 
-### Environment Variables
+### Переменные окружения
 
 ```env
 PORT=3000
@@ -141,13 +142,27 @@ DATABASE_URL=your_postgresql_url
 FRONTEND_URL=http://localhost:5173
 ```
 
+### Health & Readiness
+
+- `GET /health` — базовая проверка процесса
+- `GET /ready` — проверка готовности с пингом базы данных (`SELECT 1`)
+
+### Миграции
+
+SQL-миграции хранятся в `./migrations` и отслеживаются через таблицу `schema_migrations`.
+
+```bash
+npm run migrate
+```
+
 ---
 
-## Notes
+## Заметки
 
-- Built with focus on product thinking, not just CRUD  
-- Designed as a simplified ATS workflow  
+- Построено с фокусом на продуктовое мышление, а не просто CRUD
+- Слоистая архитектура разделяет HTTP-слой, бизнес-логику и доступ к данным
+- Спроектировано как упрощённый ATS-воркфлоу
 
 ---
 
-[Read in Russian](README.ru.md)
+[Read in English](README.md)
