@@ -28,11 +28,11 @@ export const register = async (req: Request, res: Response) => {
     const user = await authService.register(email, password);
     res.status(201).json(user);
   } catch (err: unknown) {
-    console.error("register failed:", err);
-    // единственная ошибка, которую можно показать юзеру — "email занят"
-    if (err instanceof Error && err.message === "Email already in use") {
+    if (err instanceof authService.AuthError && err.code === "EMAIL_IN_USE") {
       return res.status(409).json({ error: "Email already in use" });
     }
+
+    console.error("register failed:", err);
     res.status(500).json({ error: "Registration failed" });
   }
 };
@@ -44,10 +44,15 @@ export const login = async (req: Request, res: Response) => {
     res.cookie(REFRESH_COOKIE, result.refreshToken, refreshCookieOptions);
     res.json({ accessToken: result.accessToken, user: result.user });
   } catch (err: unknown) {
+    if (
+      err instanceof authService.AuthError &&
+      err.code === "INVALID_CREDENTIALS"
+    ) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
     console.error("login failed:", err);
-    // НЕ разделяем "user not found" и "invalid password" — юзеру одинаковая ошибка,
-    // иначе можно перебирать email'ы (user enumeration)
-    res.status(401).json({ error: "Invalid email or password" });
+    res.status(500).json({ error: "Login failed" });
   }
 };
 
@@ -60,9 +65,17 @@ export const refresh = async (req: Request, res: Response) => {
     res.cookie(REFRESH_COOKIE, result.refreshToken, refreshCookieOptions);
     res.json({ accessToken: result.accessToken, user: result.user });
   } catch (err: unknown) {
+    if (
+      err instanceof authService.AuthError &&
+      err.code === "INVALID_REFRESH_TOKEN"
+    ) {
+      res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+      return res.status(401).json({ error: "Invalid refresh token" });
+    }
+
     console.error("refresh failed:", err);
     res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
-    res.status(401).json({ error: "Invalid refresh token" });
+    res.status(500).json({ error: "Refresh failed" });
   }
 };
 
