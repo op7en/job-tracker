@@ -1,18 +1,26 @@
-import { Request, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import * as authService from "../services/authService";
 
 const REFRESH_COOKIE = "refresh_token";
 const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+const isSecureCookie =
+  process.env.NODE_ENV === "production" ||
+  Boolean(process.env.RAILWAY_ENVIRONMENT) ||
+  process.env.FRONTEND_URL?.startsWith("https://");
 
 interface AuthRequest extends Request {
   userId?: number;
 }
 
-const refreshCookieOptions = {
+const refreshCookieBaseOptions: CookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  secure: isSecureCookie,
+  sameSite: isSecureCookie ? "none" : "lax",
   path: "/auth",
+};
+
+const refreshCookieOptions: CookieOptions = {
+  ...refreshCookieBaseOptions,
   maxAge: REFRESH_MAX_AGE,
 };
 
@@ -73,12 +81,12 @@ export const refresh = async (req: Request, res: Response) => {
       err instanceof authService.AuthError &&
       err.code === "INVALID_REFRESH_TOKEN"
     ) {
-      res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+      res.clearCookie(REFRESH_COOKIE, refreshCookieBaseOptions);
       return res.status(401).json({ error: "Invalid refresh token" });
     }
 
     console.error("refresh failed:", err);
-    res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+    res.clearCookie(REFRESH_COOKIE, refreshCookieBaseOptions);
     res.status(500).json({ error: "Refresh failed" });
   }
 };
@@ -87,7 +95,7 @@ export const logout = async (req: Request, res: Response) => {
   try {
     const token = getCookie(req, REFRESH_COOKIE);
     await authService.logout(token);
-    res.clearCookie(REFRESH_COOKIE, { path: "/auth" });
+    res.clearCookie(REFRESH_COOKIE, refreshCookieBaseOptions);
     res.status(204).send();
   } catch (err: unknown) {
     console.error("logout failed:", err);
