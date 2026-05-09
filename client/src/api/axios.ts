@@ -63,9 +63,18 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config;
-    const isAuthRefreshCall = original?.url?.includes("/auth/refresh");
+    const requestUrl = original?.url ?? "";
+    const isAuthRefreshCall = requestUrl.includes("/auth/refresh");
+    const isAuthSubmitCall =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register");
 
-    if (error.response?.status === 401 && !original?._retry && !isAuthRefreshCall) {
+    if (
+      error.response?.status === 401 &&
+      !original?._retry &&
+      !isAuthRefreshCall &&
+      !isAuthSubmitCall
+    ) {
       original._retry = true;
       const newToken = await refreshAccessToken();
       if (newToken) {
@@ -77,10 +86,11 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       clearAccessToken();
-      // не редиректим, если уже на /login или /register, чтобы не зациклить
       const path = window.location.pathname;
-      if (path !== "/" && path !== "/register") {
-        window.location.href = "/";
+      const isPublicAuthPath =
+        path === "/" || path === "/login" || path === "/register";
+      if (!isPublicAuthPath) {
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
