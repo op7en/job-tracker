@@ -2,7 +2,6 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { validate } from "../middleware/validate";
 import * as appController from "../controllers/applicationController";
-import * as activityRepo from "../repositories/activityRepo";
 import {
   ApplicationSchema,
   StatusSchema,
@@ -22,19 +21,6 @@ router.patch(
   validate(UpdateApplicationSchema),
   appController.updateFields,
 );
-
-router.get("/:id/activity", async (req, res) => {
-  try {
-    const userId = (req as any).userId as number; // если хочешь, можно типизировать красивее
-    const logs = await activityRepo.getByApplicationId(
-      Number(req.params.id),
-      userId,
-    );
-    res.json(logs);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to load activity logs" });
-  }
-});
+router.get("/:id/activity", appController.getActivity);
 
 export default router;
