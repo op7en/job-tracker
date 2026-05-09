@@ -6,7 +6,7 @@ import * as userRepo from "../repositories/userRepo";
 import * as refreshTokenRepo from "../repositories/refreshTokenRepo";
 
 const ACCESS_TOKEN_TTL = "15m";
-const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30d
+const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type AuthErrorCode =
   | "EMAIL_IN_USE"
@@ -29,22 +29,25 @@ const hashToken = (token: string) =>
 const signAccessToken = (userId: number) =>
   jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_TTL });
 
-const createRefreshSession = async (userId: number) => {
+const createRefreshSession = async (userId: number, familyId?: string) => {
   const refreshToken = crypto.randomBytes(48).toString("hex");
   const tokenHash = hashToken(refreshToken);
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
-  await refreshTokenRepo.create(userId, tokenHash, expiresAt);
+  await refreshTokenRepo.create(userId, tokenHash, expiresAt, familyId);
   return { refreshToken, expiresAt };
 };
 
-const buildAuthPayload = async (userId: number) => {
+const buildAuthPayload = async (userId: number, familyId?: string) => {
   const user = await userRepo.findById(userId);
   if (!user) {
     throw new AuthError("INVALID_REFRESH_TOKEN", "Invalid refresh token");
   }
 
   const accessToken = signAccessToken(userId);
-  const { refreshToken, expiresAt } = await createRefreshSession(userId);
+  const { refreshToken, expiresAt } = await createRefreshSession(
+    userId,
+    familyId,
+  );
 
   return {
     user,
@@ -78,13 +81,17 @@ export const login = async (email: string, password: string) => {
 
 export const refresh = async (refreshToken: string) => {
   const tokenHash = hashToken(refreshToken);
-  const stored = await refreshTokenRepo.findValidByHash(tokenHash);
-  if (!stored) {
+  const rotated = await refreshTokenRepo.rotate(tokenHash);
+
+  if (!rotated) {
+    const existing = await refreshTokenRepo.findByHash(tokenHash);
+    if (existing && existing.revoked_at) {
+      await refreshTokenRepo.revokeFamilyById(existing.family_id);
+    }
     throw new AuthError("INVALID_REFRESH_TOKEN", "Invalid refresh token");
   }
 
-  await refreshTokenRepo.revokeById(stored.id);
-  return buildAuthPayload(stored.user_id);
+  return buildAuthPayload(rotated.user_id, rotated.family_id);
 };
 
 export const logout = async (refreshToken: string | undefined) => {

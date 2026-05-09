@@ -74,3 +74,17 @@ export const updateFields = async (req: AuthRequest, res: Response) => {
     res.status(400).json({ error: "Failed to update application" });
   }
 };
+
+export const getActivity = async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: "Invalid application id" });
+    }
+    const logs = await appService.getActivityLogs(id, req.userId);
+    res.json(logs);
+  } catch (err) {
+    console.error("getActivity failed:", err);
+    res.status(500).json({ error: "Failed to load activity logs" });
+  }
+};

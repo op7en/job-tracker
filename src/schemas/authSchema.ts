@@ -1,15 +1,21 @@
 import { z } from "zod";
 
+const emailField = z
+  .string()
+  .email("Invalid email")
+  .max(255)
+  .transform((v) => v.trim().toLowerCase());
+
 export const RegisterSchema = z.object({
-  email: z.string().email("Invalid email").max(255),
+  email: emailField,
   password: z
     .string()
     .min(6, "Password must be at least 6 characters")
-    .max(72, "Password too long"), // bcrypt лимит 72 байта
+    .max(72, "Password too long"),
 });
 
 export const LoginSchema = z.object({
-  email: z.string().email("Invalid email"),
+  email: emailField,
   password: z.string().min(1, "Password required"),
 });
 
