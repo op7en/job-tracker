@@ -1,11 +1,13 @@
 import fs from "fs/promises";
 import path from "path";
+import type { PoolClient } from "pg";
 import pool from "../db";
 
 const MIGRATIONS_TABLE = "schema_migrations";
+const MIGRATION_LOCK_KEY = 4242;
 
-const ensureMigrationsTable = async () => {
-  await pool.query(`
+const ensureMigrationsTable = async (client: PoolClient) => {
+  await client.query(`
     CREATE TABLE IF NOT EXISTS ${MIGRATIONS_TABLE} (
       name VARCHAR(255) PRIMARY KEY,
       run_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -13,8 +15,10 @@ const ensureMigrationsTable = async () => {
   `);
 };
 
-const getAppliedMigrations = async (): Promise<Set<string>> => {
-  const res = await pool.query<{ name: string }>(
+const getAppliedMigrations = async (
+  client: PoolClient,
+): Promise<Set<string>> => {
+  const res = await client.query<{ name: string }>(
     `SELECT name FROM ${MIGRATIONS_TABLE}`,
   );
   return new Set(res.rows.map((r) => r.name));
@@ -29,35 +33,46 @@ const getMigrationFiles = async (): Promise<string[]> => {
     .sort();
 };
 
-const runMigrationFile = async (filename: string) => {
+const runMigrationFile = async (client: PoolClient, filename: string) => {
   const filePath = path.resolve(process.cwd(), "migrations", filename);
   const sql = await fs.readFile(filePath, "utf8");
 
-  await pool.query("BEGIN");
+  await client.query("BEGIN");
   try {
-    await pool.query(sql);
-    await pool.query(`INSERT INTO ${MIGRATIONS_TABLE} (name) VALUES ($1)`, [
+    await client.query(sql);
+    await client.query(`INSERT INTO ${MIGRATIONS_TABLE} (name) VALUES ($1)`, [
       filename,
     ]);
-    await pool.query("COMMIT");
+    await client.query("COMMIT");
     console.log(`Applied migration: ${filename}`);
   } catch (err) {
-    await pool.query("ROLLBACK");
+    await client.query("ROLLBACK");
     throw err;
   }
 };
 
 export const runMigrations = async () => {
-  await ensureMigrationsTable();
-  const applied = await getAppliedMigrations();
-  const files = await getMigrationFiles();
+  const client = await pool.connect();
+  try {
+    await client.query("SELECT pg_advisory_lock($1)", [MIGRATION_LOCK_KEY]);
 
-  for (const file of files) {
-    if (applied.has(file)) continue;
-    await runMigrationFile(file);
+    try {
+      await ensureMigrationsTable(client);
+      const applied = await getAppliedMigrations(client);
+      const files = await getMigrationFiles();
+
+      for (const file of files) {
+        if (applied.has(file)) continue;
+        await runMigrationFile(client, file);
+      }
+
+      console.log("Migrations are up to date");
+    } finally {
+      await client.query("SELECT pg_advisory_unlock($1)", [MIGRATION_LOCK_KEY]);
+    }
+  } finally {
+    client.release();
   }
-
-  console.log("Migrations are up to date");
 };
 
 if (require.main === module) {
