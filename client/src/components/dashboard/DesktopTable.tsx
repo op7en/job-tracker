@@ -18,10 +18,7 @@ interface DesktopTableProps {
   initialLoading: boolean;
   onUpdateStatus: (id: number, status: string) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
-  onUpdateApplication: (
-    id: number,
-    data: Partial<Application>,
-  ) => Promise<void>;
+  onUpdateApplication: (id: number, data: Partial<Application>) => Promise<void>;
   deletingId: number | null;
 }
 
@@ -75,7 +72,6 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
     whiteSpace: "nowrap",
   };
 
-  // Убрали колонку "update" (select)
   const headers = [
     t("dashboard.company"),
     t("dashboard.position"),
@@ -95,9 +91,7 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
         overflowX: "auto",
       }}
     >
-      <table
-        style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
         <thead>
           <tr style={{ background: "var(--bg-elevated)" }}>
             {headers.map((h, i) => (
@@ -134,8 +128,7 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                   onMouseLeave={() => setHoveredRow(null)}
                   style={{
                     borderTop: "1px solid var(--border)",
-                    background:
-                      hoveredRow === app.id ? "var(--bg-hover)" : "transparent",
+                    background: hoveredRow === app.id ? "var(--bg-hover)" : "transparent",
                     transition: "background 0.1s",
                   }}
                 >
@@ -364,8 +357,7 @@ export const DesktopTable: React.FC<DesktopTableProps> = ({
                             padding: "5px 10px",
                             color: "var(--text-secondary)",
                             fontSize: "12px",
-                            cursor:
-                              deletingId === app.id ? "not-allowed" : "pointer",
+                            cursor: deletingId === app.id ? "not-allowed" : "pointer",
                             opacity: deletingId === app.id ? 0.5 : 1,
                             display: "flex",
                             alignItems: "center",

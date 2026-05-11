@@ -9,8 +9,6 @@ import { runMigrations } from "./scripts/migrate";
 
 const app = express();
 
-// Railway работает за прокси — доверяем одному слою прокси,
-// чтобы req.ip содержал реальный IP клиента (для rate-limit)
 app.set("trust proxy", 1);
 
 app.use(helmet());

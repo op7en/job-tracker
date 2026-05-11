@@ -29,7 +29,7 @@ const Dashboard = () => {
     addApplication,
     updateStatus,
     deleteApplication,
-    updateApplication, // <-- добавь это в хуке
+    updateApplication,
   } = useApplications();
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -41,11 +41,7 @@ const Dashboard = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleAdd = async (data: {
-    company: string;
-    position: string;
-    notes: string;
-  }) => {
+  const handleAdd = async (data: { company: string; position: string; notes: string }) => {
     await addApplication(data);
     toast.success(`✅ ${data.company} ${t("dashboard.added")}`);
   };
@@ -66,10 +62,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleUpdateApplication = async (
-    id: number,
-    data: Partial<Application>,
-  ) => {
+  const handleUpdateApplication = async (id: number, data: Partial<Application>) => {
     await updateApplication(id, data);
     toast.success(t("dashboard.updated"));
   };
@@ -82,9 +75,7 @@ const Dashboard = () => {
     responseRate:
       applications.length > 0
         ? Math.round(
-            (applications.filter((a) => a.status !== "applied").length /
-              applications.length) *
-              100,
+            (applications.filter((a) => a.status !== "applied").length / applications.length) * 100,
           )
         : 0,
   };
@@ -153,11 +144,7 @@ const Dashboard = () => {
       >
         <StatsStrip {...stats} />
 
-        <AddApplicationForm
-          onAdd={handleAdd}
-          isMobile={isMobile}
-          isFirstAction={showOnboarding}
-        />
+        <AddApplicationForm onAdd={handleAdd} isMobile={isMobile} isFirstAction={showOnboarding} />
         {showOnboarding ? (
           <OnboardingEmptyState />
         ) : view === "board" ? (

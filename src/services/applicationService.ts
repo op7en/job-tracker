@@ -11,7 +11,7 @@ export const create = async (
   position: string,
   notes?: string,
 ) => {
-  const app = await repo.create(userId, company, position, notes);
+  const app = await repo.create(userId, company, position, notes ?? "");
   await activityRepo.log(app.id, "created", { company, position });
   return app;
 };

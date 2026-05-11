@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { Application } from "../../hooks/useApplications";
-import { ActivityModal } from "./ActivityModal"; // <-- новый импорт
+import { ActivityModal } from "./ActivityModal";
 
 const COLUMNS = ["applied", "interview", "offer", "rejected"] as const;
 
 const getStaleDays = (dateApplied: string, status: string): number | null => {
   if (status !== "applied") return null;
-  const days = Math.floor(
-    (Date.now() - new Date(dateApplied).getTime()) / (1000 * 60 * 60 * 24),
-  );
+  const days = Math.floor((Date.now() - new Date(dateApplied).getTime()) / (1000 * 60 * 60 * 24));
   return days >= 7 ? days : null;
 };
 
-// Вынесенная карточка
 const KanbanCard: React.FC<{
   app: Application;
   draggingId: number | null;
   onDragStart: (e: React.DragEvent, id: number) => void;
   onDragEnd: () => void;
   onDelete: (id: number) => Promise<void>;
-  onClick: (app: Application) => void; // <-- новый пропс
+  onClick: (app: Application) => void;
   t: (key: string) => string;
 }> = ({ app, draggingId, onDragStart, onDragEnd, onDelete, onClick, t }) => {
   const staleDays = getStaleDays(app.date_applied, app.status);
@@ -30,13 +27,13 @@ const KanbanCard: React.FC<{
       draggable
       onDragStart={(e) => onDragStart(e, app.id)}
       onDragEnd={onDragEnd}
-      onClick={() => onClick(app)} // <-- обработчик клика
+      onClick={() => onClick(app)}
       style={{
         background: "var(--bg-elevated)",
         border: `1px solid ${staleDays ? "var(--warning, #f59e0b)" : "var(--border)"}`,
         borderRadius: "8px",
         padding: "10px 12px",
-        cursor: "pointer", // <-- изменено с "grab"
+        cursor: "pointer",
         opacity: draggingId === app.id ? 0.4 : 1,
         transition: "opacity 0.15s",
       }}
@@ -106,7 +103,7 @@ const KanbanCard: React.FC<{
         </span>
         <button
           onClick={(e) => {
-            e.stopPropagation(); // <-- предотвращаем всплытие клика на карточку
+            e.stopPropagation();
             onDelete(app.id);
           }}
           style={{
@@ -120,12 +117,10 @@ const KanbanCard: React.FC<{
             borderRadius: "4px",
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color =
-              "var(--danger)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--danger)";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color =
-              "var(--text-secondary)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--text-secondary)";
           }}
         >
           <svg
@@ -160,7 +155,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const { t } = useTranslation();
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [overColumn, setOverColumn] = useState<string | null>(null);
-  const [selectedApp, setSelectedApp] = useState<Application | null>(null); // <-- новый стейт для модалки
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
@@ -204,7 +199,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     setOverColumn(null);
   };
 
-  // Мобильный вид: горизонтальный скролл
   if (isMobile) {
     return (
       <>
@@ -232,9 +226,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   minWidth: "85vw",
                   scrollSnapAlign: "start",
                   flexShrink: 0,
-                  background: isOver
-                    ? "var(--bg-elevated)"
-                    : "var(--bg-surface)",
+                  background: isOver ? "var(--bg-elevated)" : "var(--bg-surface)",
                   border: `1px solid ${isOver ? columnColors[status] : "var(--border)"}`,
                   borderRadius: "10px",
                   padding: "12px",
@@ -242,7 +234,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   transition: "all 0.15s",
                 }}
               >
-                {/* Заголовок колонки */}
                 <div
                   style={{
                     display: "flex",
@@ -290,7 +281,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   </span>
                 </div>
 
-                {/* Карточки */}
                 <div
                   style={{
                     display: "flex",
@@ -320,7 +310,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                         onDelete={onDelete}
-                        onClick={setSelectedApp} // <-- передаём сеттер
+                        onClick={setSelectedApp}
                         t={t}
                       />
                     ))
@@ -331,13 +321,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           })}
         </div>
 
-        {/* Модальное окно активности */}
         <ActivityModal app={selectedApp} onClose={() => setSelectedApp(null)} />
       </>
     );
   }
 
-  // Десктопный вид: сетка 4 колонки
   return (
     <>
       <div
@@ -375,9 +363,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   marginBottom: "12px",
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <div
                     style={{
                       width: "8px",
@@ -410,9 +396,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 </span>
               </div>
 
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {cards.length === 0 ? (
                   <div
                     style={{
@@ -435,7 +419,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
                       onDelete={onDelete}
-                      onClick={setSelectedApp} // <-- передаём сеттер
+                      onClick={setSelectedApp}
                       t={t}
                     />
                   ))
@@ -446,7 +430,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         })}
       </div>
 
-      {/* Модальное окно активности */}
       <ActivityModal app={selectedApp} onClose={() => setSelectedApp(null)} />
     </>
   );

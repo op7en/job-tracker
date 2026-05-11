@@ -1,4 +1,3 @@
--- Refresh token rotation: family-based reuse detection
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 ALTER TABLE refresh_tokens

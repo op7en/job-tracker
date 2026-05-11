@@ -10,7 +10,7 @@ const LogoutButton = () => {
     try {
       await api.post("/auth/logout");
     } catch {
-      // даже если сервер недоступен — локально выходим
+      //
     } finally {
       clearSession();
       navigate("/");
