@@ -2,8 +2,7 @@ import pool, { type DbClient } from "../db";
 import * as repo from "../repositories/applicationRepo";
 import * as activityRepo from "../repositories/activityRepo";
 import type { ApplicationUpdate } from "../repositories/applicationRepo";
-
-const VALID_STATUSES = ["applied", "interview", "rejected", "offer"];
+import { isApplicationStatus } from "../domain/applicationStatus";
 
 const withTransaction = async <T>(
   callback: (client: DbClient) => Promise<T>,
@@ -45,7 +44,7 @@ export const updateStatus = async (
   userId: number,
   status: string,
 ) => {
-  if (!VALID_STATUSES.includes(status)) throw new Error("Invalid status");
+  if (!isApplicationStatus(status)) throw new Error("Invalid status");
   return withTransaction(async (client) => {
     const app = await repo.updateStatus(id, userId, status, client);
     if (app) {
@@ -62,7 +61,7 @@ export const updateFields = async (
 ) => {
   const { company, position, status, notes } = body;
   if (status !== undefined) {
-    if (!VALID_STATUSES.includes(status)) throw new Error("Invalid status");
+    if (!isApplicationStatus(status)) throw new Error("Invalid status");
   }
 
   return withTransaction(async (client) => {

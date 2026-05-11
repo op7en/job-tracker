@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { APPLICATION_STATUSES } from "../domain/applicationStatus";
 
 const emailField = z
   .string()
@@ -26,7 +27,7 @@ export const ApplicationSchema = z.object({
 });
 
 export const StatusSchema = z.object({
-  status: z.enum(["applied", "interview", "rejected", "offer"]),
+  status: z.enum(APPLICATION_STATUSES),
 });
 
 export const UpdateApplicationSchema = z
@@ -34,7 +35,7 @@ export const UpdateApplicationSchema = z
     company: z.string().min(1).max(255).trim().optional(),
     position: z.string().min(1).max(255).trim().optional(),
     notes: z.string().max(2000).optional(),
-    status: z.enum(["applied", "interview", "rejected", "offer"]).optional(),
+    status: z.enum(APPLICATION_STATUSES).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided",
