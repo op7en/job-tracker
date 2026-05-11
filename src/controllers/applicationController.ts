@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import * as appService from "../services/applicationService";
 
 interface AuthRequest extends Request {
-  userId: number;
+  userId?: number;
 }
 
 export const getAll = async (req: AuthRequest, res: Response) => {
   try {
-    const data = await appService.getAll(req.userId);
+    const data = await appService.getAll(req.userId!);
     res.json(data);
   } catch (err) {
     console.error("getAll failed:", err);
@@ -18,12 +18,7 @@ export const getAll = async (req: AuthRequest, res: Response) => {
 export const create = async (req: AuthRequest, res: Response) => {
   const { company, position, notes } = req.body;
   try {
-    const data = await appService.create(
-      req.userId,
-      company,
-      position,
-      notes || "",
-    );
+    const data = await appService.create(req.userId!, company, position, notes || "");
     res.status(201).json(data);
   } catch (err) {
     console.error("create failed:", err);
@@ -33,9 +28,8 @@ export const create = async (req: AuthRequest, res: Response) => {
 
 export const remove = async (req: AuthRequest, res: Response) => {
   try {
-    const deleted = await appService.remove(String(req.params.id), req.userId);
-    if (!deleted)
-      return res.status(404).json({ error: "Application not found" });
+    const deleted = await appService.remove(String(req.params.id), req.userId!);
+    if (!deleted) return res.status(404).json({ error: "Application not found" });
     res.json({ message: "Application deleted" });
   } catch (err) {
     console.error("remove failed:", err);
@@ -47,11 +41,10 @@ export const updateStatus = async (req: AuthRequest, res: Response) => {
   try {
     const updated = await appService.updateStatus(
       String(req.params.id),
-      req.userId,
+      req.userId!,
       req.body.status,
     );
-    if (!updated)
-      return res.status(404).json({ error: "Application not found" });
+    if (!updated) return res.status(404).json({ error: "Application not found" });
     res.json(updated);
   } catch (err) {
     console.error("updateStatus failed:", err);
@@ -61,13 +54,8 @@ export const updateStatus = async (req: AuthRequest, res: Response) => {
 
 export const updateFields = async (req: AuthRequest, res: Response) => {
   try {
-    const updated = await appService.updateFields(
-      String(req.params.id),
-      req.userId,
-      req.body,
-    );
-    if (!updated)
-      return res.status(404).json({ error: "Application not found" });
+    const updated = await appService.updateFields(String(req.params.id), req.userId!, req.body);
+    if (!updated) return res.status(404).json({ error: "Application not found" });
     res.json(updated);
   } catch (err) {
     console.error("updateFields failed:", err);
@@ -81,7 +69,7 @@ export const getActivity = async (req: AuthRequest, res: Response) => {
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ error: "Invalid application id" });
     }
-    const logs = await appService.getActivityLogs(id, req.userId);
+    const logs = await appService.getActivityLogs(id, req.userId!);
     res.json(logs);
   } catch (err) {
     console.error("getActivity failed:", err);
