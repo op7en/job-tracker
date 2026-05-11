@@ -1,4 +1,5 @@
 import request from "supertest";
+import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "./app";
 import * as authService from "./services/authService";
@@ -46,14 +47,14 @@ describe("auth HTTP routes", () => {
         refreshExpiresAt: new Date(),
         user: {
           id: 1,
-          email: "oleg@example.com",
+          email: "user@example.com",
         },
       });
 
       const response = await request(app)
         .post("/auth/login")
         .send({
-          email: "OLEG@example.com",
+          email: "user@example.com",
           password: "secret123",
         })
         .expect(200);
@@ -62,7 +63,7 @@ describe("auth HTTP routes", () => {
         accessToken: "access-token",
         user: {
           id: 1,
-          email: "oleg@example.com",
+          email: "user@example.com",
         },
       });
       expect(response.headers["set-cookie"][0]).toContain(
@@ -71,7 +72,7 @@ describe("auth HTTP routes", () => {
       expect(response.headers["set-cookie"][0]).toContain("HttpOnly");
       expect(response.headers["set-cookie"][0]).toContain("Path=/auth");
       expect(authService.login).toHaveBeenCalledWith(
-        "oleg@example.com",
+        "user@example.com",
         "secret123",
       );
     });
@@ -87,7 +88,7 @@ describe("auth HTTP routes", () => {
       const response = await request(app)
         .post("/auth/login")
         .send({
-          email: "oleg@example.com",
+          email: "user@example.com",
           password: "wrong-password",
         })
         .expect(401);
@@ -112,6 +113,46 @@ describe("auth HTTP routes", () => {
         ]),
       );
       expect(authService.login).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /auth/me", () => {
+    it("returns 401 when authorization header is missing", async () => {
+      const response = await request(app).get("/auth/me").expect(401);
+
+      expect(response.body).toEqual({ message: "No token" });
+      expect(authService.getCurrentUser).not.toHaveBeenCalled();
+    });
+
+    it("returns 401 for an invalid access token", async () => {
+      const response = await request(app)
+        .get("/auth/me")
+        .set("Authorization", "Bearer invalid-token")
+        .expect(401);
+
+      expect(response.body).toEqual({ message: "Invalid token" });
+      expect(authService.getCurrentUser).not.toHaveBeenCalled();
+    });
+
+    it("returns the current user for a valid access token", async () => {
+      vi.mocked(authService.getCurrentUser).mockResolvedValue({
+        id: 1,
+        email: "user@example.com",
+      });
+      const accessToken = jwt.sign({ id: 1 }, "test-secret");
+
+      const response = await request(app)
+        .get("/auth/me")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(response.body).toEqual({
+        user: {
+          id: 1,
+          email: "user@example.com",
+        },
+      });
+      expect(authService.getCurrentUser).toHaveBeenCalledWith(1);
     });
   });
 });
