@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import ThemeToggle from "../components/ThemeToggle";
@@ -12,6 +12,7 @@ import { KanbanBoard } from "../components/dashboard/KanbanBoard";
 import { ViewToggle } from "../components/dashboard/ViewToggle";
 import { OnboardingEmptyState } from "../components/dashboard/OnboardingEmptyState";
 import LogoutButton from "../components/LogoutButton";
+import { useIsMobile } from "../hooks/useIsMobile";
 interface Application {
   id: number;
   company: string;
@@ -32,14 +33,8 @@ const Dashboard = () => {
     updateApplication,
   } = useApplications();
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const isMobile = useIsMobile();
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleAdd = async (data: { company: string; position: string; notes: string }) => {
     await addApplication(data);
@@ -67,18 +62,34 @@ const Dashboard = () => {
     toast.success(t("dashboard.updated"));
   };
 
-  const stats = {
-    total: applications.length,
-    interview: applications.filter((a) => a.status === "interview").length,
-    offer: applications.filter((a) => a.status === "offer").length,
-    rejected: applications.filter((a) => a.status === "rejected").length,
-    responseRate:
-      applications.length > 0
-        ? Math.round(
-            (applications.filter((a) => a.status !== "applied").length / applications.length) * 100,
-          )
-        : 0,
-  };
+  const stats = useMemo(() => {
+    const counts = applications.reduce(
+      (acc, app) => {
+        if (app.status === "interview") acc.interview += 1;
+        if (app.status === "offer") acc.offer += 1;
+        if (app.status === "rejected") acc.rejected += 1;
+        if (app.status !== "applied") acc.responded += 1;
+        return acc;
+      },
+      {
+        interview: 0,
+        offer: 0,
+        rejected: 0,
+        responded: 0,
+      },
+    );
+
+    return {
+      total: applications.length,
+      interview: counts.interview,
+      offer: counts.offer,
+      rejected: counts.rejected,
+      responseRate:
+        applications.length > 0
+          ? Math.round((counts.responded / applications.length) * 100)
+          : 0,
+    };
+  }, [applications]);
 
   const [view, setView] = useState<"table" | "board">("table");
   const showOnboarding = !initialLoading && applications.length === 0;
