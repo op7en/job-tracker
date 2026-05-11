@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
@@ -10,7 +10,6 @@ import { AuthLayout } from "../components/AuthLayout";
 import { useApiWarmup } from "../hooks/useApiWarmup";
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isWarmingUp, warmupFailed } = useApiWarmup();
@@ -100,12 +99,12 @@ const Register: React.FC = () => {
           }}
         >
           {t("auth.alreadyHaveAccount")}{" "}
-          <span
-            onClick={() => navigate("/login")}
-            style={{ color: "var(--accent)", cursor: "pointer" }}
+          <Link
+            to="/login"
+            style={{ color: "var(--accent)", textDecoration: "none" }}
           >
             {t("auth.signInLink")}
-          </span>
+          </Link>
         </p>
       </AuthLayout>
 

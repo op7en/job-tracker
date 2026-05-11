@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Application } from "../../hooks/useApplications";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import { ActivityModal } from "./ActivityModal";
 
 const COLUMNS = ["applied", "interview", "offer", "rejected"] as const;
@@ -157,13 +158,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const [overColumn, setOverColumn] = useState<string | null>(null);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const isMobile = useIsMobile();
 
   const columnColors: Record<string, string> = {
     applied: "var(--accent)",
