@@ -7,5 +7,5 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "exclude": ["node_modules", "client"]
+  "exclude": ["node_modules", "client", "src/**/*.test.ts"]
 }
