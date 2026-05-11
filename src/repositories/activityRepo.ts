@@ -1,11 +1,12 @@
-import pool from "../db";
+import pool, { type DbClient } from "../db";
 
 export const log = async (
   applicationId: number,
   type: string,
   payload?: Record<string, any>,
+  client: DbClient = pool,
 ) => {
-  await pool.query(
+  await client.query(
     `INSERT INTO activity_logs (application_id, type, payload)
      VALUES ($1, $2, $3)`,
     [applicationId, type, payload ? JSON.stringify(payload) : null],

@@ -1,4 +1,18 @@
-import pool from "../db";
+import pool, { type DbClient } from "../db";
+
+export type ApplicationUpdate = {
+  company?: string;
+  position?: string;
+  status?: string;
+  notes?: string;
+};
+
+const UPDATE_COLUMNS: Array<keyof ApplicationUpdate> = [
+  "company",
+  "position",
+  "status",
+  "notes",
+];
 
 export const getAll = async (userId: number) => {
   const result = await pool.query(
@@ -13,8 +27,9 @@ export const create = async (
   company: string,
   position: string,
   notes: string,
+  client: DbClient = pool,
 ) => {
-  const result = await pool.query(
+  const result = await client.query(
     `INSERT INTO applications (user_id, company, position, notes)
      VALUES ($1, $2, $3, $4) RETURNING *`,
     [userId, company, position, notes],
@@ -34,8 +49,9 @@ export const updateStatus = async (
   id: string,
   userId: number,
   status: string,
+  client: DbClient = pool,
 ) => {
-  const result = await pool.query(
+  const result = await client.query(
     "UPDATE applications SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING *",
     [status, id, userId],
   );
@@ -45,10 +61,24 @@ export const updateStatus = async (
 export const updateFields = async (
   id: string,
   userId: number,
-  updates: string[],
-  values: any[],
+  fields: ApplicationUpdate,
+  client: DbClient = pool,
 ) => {
-  const result = await pool.query(
+  const updates: string[] = [];
+  const values: unknown[] = [];
+
+  UPDATE_COLUMNS.forEach((column) => {
+    const value = fields[column];
+    if (value !== undefined) {
+      values.push(value);
+      updates.push(`${column} = $${values.length}`);
+    }
+  });
+
+  if (updates.length === 0) throw new Error("No fields to update");
+
+  values.push(id, userId);
+  const result = await client.query(
     `UPDATE applications SET ${updates.join(", ")}
      WHERE id = $${values.length - 1} AND user_id = $${values.length} RETURNING *`,
     values,
