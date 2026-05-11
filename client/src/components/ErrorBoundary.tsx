@@ -19,7 +19,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // сюда можно позже прикрутить Sentry / логирование
     console.error("ErrorBoundary caught:", error, errorInfo);
   }
 

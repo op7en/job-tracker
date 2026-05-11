@@ -13,6 +13,6 @@ export const validate =
         })),
       });
     }
-    req.body = result.data; // подменяем на отвалидированные данные
+    req.body = result.data;
     next();
   };

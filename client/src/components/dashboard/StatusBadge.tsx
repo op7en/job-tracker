@@ -28,7 +28,6 @@ export const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     bg: "var(--bg-elevated)",
   };
 
-  // Берём перевод из dashboard.{status}, если нет — показываем оригинальный status
   const label = t(`dashboard.${status}`, status);
 
   return (

@@ -20,9 +20,9 @@ import "./i18n";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30 * 1000, // данные свежие 30 секунд — не рефетчит без нужды
-      retry: 1, // 1 повторная попытка при ошибке
-      refetchOnWindowFocus: false, // не рефетчить при переключении вкладок
+      staleTime: 30 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
     },
   },
 });
