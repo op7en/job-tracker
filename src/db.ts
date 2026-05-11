@@ -18,7 +18,7 @@ const buildSslConfig = (): PoolConfig["ssl"] => {
   if (ca) {
     return { ca, rejectUnauthorized: true };
   }
-  return { rejectUnauthorized: false };
+  return { rejectUnauthorized: process.env.NODE_ENV === "production" };
 };
 
 const pool = new Pool({

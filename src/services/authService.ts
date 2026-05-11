@@ -7,6 +7,8 @@ import * as refreshTokenRepo from "../repositories/refreshTokenRepo";
 
 const ACCESS_TOKEN_TTL = "15m";
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const DUMMY_PASSWORD_HASH =
+  "$2b$10$wPjPUCNX3z0xF1QlXvp9s.du8VWxNNlzMfN/Cp8Fvhn1kOhmm7hhC";
 
 export type AuthErrorCode =
   | "EMAIL_IN_USE"
@@ -67,12 +69,10 @@ export const register = async (email: string, password: string) => {
 
 export const login = async (email: string, password: string) => {
   const user = await userRepo.findByEmail(email);
-  if (!user) {
-    throw new AuthError("INVALID_CREDENTIALS", "Invalid email or password");
-  }
+  const passwordHash = user?.password ?? DUMMY_PASSWORD_HASH;
+  const valid = await bcrypt.compare(password, passwordHash);
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
+  if (!user || !valid) {
     throw new AuthError("INVALID_CREDENTIALS", "Invalid email or password");
   }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AuthLayout } from "../components/AuthLayout";
 import { Input } from "../components/ui/Input";
@@ -8,7 +8,6 @@ import { useLoginForm } from "../hooks/useLoginForm";
 import { useApiWarmup } from "../hooks/useApiWarmup";
 
 const Login: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { email, setEmail, password, setPassword, loading, handleSubmit } =
     useLoginForm();
@@ -77,12 +76,12 @@ const Login: React.FC = () => {
         }}
       >
         {t("auth.noAccount")}{" "}
-        <span
-          onClick={() => navigate("/register")}
-          style={{ color: "var(--accent)", cursor: "pointer" }}
+        <Link
+          to="/register"
+          style={{ color: "var(--accent)", textDecoration: "none" }}
         >
           {t("auth.createOne")}
-        </span>
+        </Link>
       </p>
     </AuthLayout>
   );
