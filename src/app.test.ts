@@ -18,6 +18,8 @@ const authMock = vi.hoisted(() => {
   return {
     AuthError,
     login: vi.fn(),
+    refresh: vi.fn(),
+    logout: vi.fn(),
   };
 });
 
@@ -28,9 +30,9 @@ vi.mock("./config/env", () => ({
 vi.mock("./services/authService", () => ({
   AuthError: authMock.AuthError,
   login: authMock.login,
+  refresh: authMock.refresh,
+  logout: authMock.logout,
   register: vi.fn(),
-  refresh: vi.fn(),
-  logout: vi.fn(),
   getCurrentUser: vi.fn(),
 }));
 
@@ -153,6 +155,82 @@ describe("auth HTTP routes", () => {
         },
       });
       expect(authService.getCurrentUser).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe("POST /auth/refresh", () => {
+    it("returns 401 when refresh cookie is missing", async () => {
+      const response = await request(app).post("/auth/refresh").expect(401);
+
+      expect(response.body).toEqual({ error: "No refresh token" });
+      expect(authService.refresh).not.toHaveBeenCalled();
+    });
+
+    it("rotates a valid refresh cookie", async () => {
+      vi.mocked(authService.refresh).mockResolvedValue({
+        accessToken: "new-access-token",
+        refreshToken: "new-refresh-token",
+        refreshExpiresAt: new Date(),
+        user: {
+          id: 1,
+          email: "user@example.com",
+        },
+      });
+
+      const response = await request(app)
+        .post("/auth/refresh")
+        .set("Cookie", "refresh_token=old-refresh-token")
+        .expect(200);
+
+      expect(response.body).toEqual({
+        accessToken: "new-access-token",
+        user: {
+          id: 1,
+          email: "user@example.com",
+        },
+      });
+      expect(response.headers["set-cookie"][0]).toContain(
+        "refresh_token=new-refresh-token",
+      );
+      expect(response.headers["set-cookie"][0]).toContain("HttpOnly");
+      expect(response.headers["set-cookie"][0]).toContain("Path=/auth");
+      expect(authService.refresh).toHaveBeenCalledWith("old-refresh-token");
+    });
+
+    it("clears refresh cookie for an invalid refresh token", async () => {
+      vi.mocked(authService.refresh).mockRejectedValue(
+        new authService.AuthError(
+          "INVALID_REFRESH_TOKEN",
+          "Invalid refresh token",
+        ),
+      );
+
+      const response = await request(app)
+        .post("/auth/refresh")
+        .set("Cookie", "refresh_token=stolen-refresh-token")
+        .expect(401);
+
+      expect(response.body).toEqual({ error: "Invalid refresh token" });
+      expect(response.headers["set-cookie"][0]).toContain("refresh_token=");
+      expect(response.headers["set-cookie"][0]).toContain(
+        "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+      );
+    });
+  });
+
+  describe("POST /auth/logout", () => {
+    it("revokes the current refresh cookie and clears it", async () => {
+      const response = await request(app)
+        .post("/auth/logout")
+        .set("Cookie", "refresh_token=refresh-token")
+        .expect(204);
+
+      expect(response.text).toBe("");
+      expect(response.headers["set-cookie"][0]).toContain("refresh_token=");
+      expect(response.headers["set-cookie"][0]).toContain(
+        "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+      );
+      expect(authService.logout).toHaveBeenCalledWith("refresh-token");
     });
   });
 });
