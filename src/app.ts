@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import authRoutes from "./routes/auth";
 import applicationRoutes from "./routes/applications";
 import cors from "cors";
@@ -34,5 +34,10 @@ app.get("/ready", async (_req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/applications", applicationRoutes);
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
+});
 
 export default app;

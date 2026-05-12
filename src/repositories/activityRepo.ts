@@ -3,7 +3,7 @@ import pool, { type DbClient } from "../db";
 export const log = async (
   applicationId: number,
   type: string,
-  payload?: Record<string, any>,
+  payload?: Record<string, unknown>,
   client: DbClient = pool,
 ) => {
   await client.query(
@@ -13,10 +13,7 @@ export const log = async (
   );
 };
 
-export const getByApplicationId = async (
-  applicationId: number,
-  userId: number,
-) => {
+export const getByApplicationId = async (applicationId: number, userId: number) => {
   const result = await pool.query(
     `SELECT al.*
      FROM activity_logs al
