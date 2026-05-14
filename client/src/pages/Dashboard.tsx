@@ -85,9 +85,7 @@ const Dashboard = () => {
       offer: counts.offer,
       rejected: counts.rejected,
       responseRate:
-        applications.length > 0
-          ? Math.round((counts.responded / applications.length) * 100)
-          : 0,
+        applications.length > 0 ? Math.round((counts.responded / applications.length) * 100) : 0,
     };
   }, [applications]);
 
@@ -96,7 +94,6 @@ const Dashboard = () => {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-app)" }}>
-      {/* Header — без изменений */}
       <div
         style={{
           borderBottom: "1px solid var(--border)",
